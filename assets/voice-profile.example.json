@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "subject_id": "local-private-id",
+  "model": {
+    "name": "replace-with-model-name",
+    "version": "replace-with-model-version",
+    "rate_direction": "adapter_defined"
+  },
+  "reference_audio": {
+    "sha256": "replace-with-64-char-sha256",
+    "authorization_record": "./consent-record.json",
+    "source_qa": "./voice-source-qa.json",
+    "selected_range_seconds": null
+  },
+  "language": "zh-CN",
+  "selected_style": null,
+  "style_confirmation_scope": "once_per_valid_voice_profile",
+  "reprompt_each_project": false,
+  "style_candidates": {
+    "natural-balanced": {"sample_sha256": null, "approved": false},
+    "steady-integrated": {"sample_sha256": null, "approved": false},
+    "short-video-compact": {"sample_sha256": null, "approved": false}
+  },
+  "blind_review": {
+    "candidate_order": [],
+    "review_notes": null
+  },
+  "approved_rates": {
+    "short": {"adapter_value": null, "sample_sha256": null},
+    "medium": {"adapter_value": null, "sample_sha256": null},
+    "long": {"adapter_value": null, "sample_sha256": null}
+  },
+  "pace_limits": {
+    "target_units_per_second": null,
+    "maximum_units_per_second": null
+  },
+  "pause_policy": {
+    "phrase_seconds": null,
+    "sentence_seconds": null,
+    "section_seconds": null
+  },
+  "pronunciation_lexicon": [
+    {
+      "written_form": "replace-with-term",
+      "spoken_form": null,
+      "context": null,
+      "source_urls": [],
+      "confidence": null,
+      "approved_sample_sha256": null
+    }
+  ],
+  "validation_sample": {
+    "script_sha256": null,
+    "audio_sha256": null,
+    "qa_report": null
+  },
+  "status": "pending",
+  "needs_recalibration_reason": null,
+  "style_selected_at": null,
+  "style_effective_from": null,
+  "approved_at": null,
+  "approval_text": null
+}

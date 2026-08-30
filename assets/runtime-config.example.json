@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "enabled_stages": ["rewrite", "voice", "avatar", "packaging"],
+  "stages": {
+    "rewrite": {
+      "skill_name": "replace-with-generic-rewrite-skill",
+      "skill_root": null,
+      "adapter_contract_version": 1,
+      "readiness_attested": false,
+      "checks": []
+    },
+    "voice": {
+      "skill_name": "replace-with-authorized-voice-skill",
+      "skill_root": null,
+      "adapter_contract_version": 1,
+      "readiness_attested": false,
+      "checks": [
+        {"type": "command", "value": "python"},
+        {"type": "path", "value": "replace-with-model-or-provider-config-path"}
+      ]
+    },
+    "avatar": {
+      "skill_name": "replace-with-digital-human-video-skill",
+      "skill_root": null,
+      "adapter_contract_version": 1,
+      "readiness_attested": false,
+      "checks": [
+        {"type": "command", "value": "ffmpeg"},
+        {"type": "command", "value": "ffprobe"},
+        {"type": "path", "value": "replace-with-avatar-model-or-provider-config-path"}
+      ]
+    },
+    "packaging": {
+      "skill_name": "replace-with-video-packaging-skill",
+      "skill_root": null,
+      "adapter_contract_version": 1,
+      "readiness_attested": false,
+      "checks": [
+        {"type": "command", "value": "ffmpeg"},
+        {"type": "command", "value": "ffprobe"},
+        {"type": "path", "value": "replace-with-packaging-runtime-or-provider-config-path"}
+      ]
+    }
+  }
+}
+

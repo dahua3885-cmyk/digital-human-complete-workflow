@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "profile_id": "avatar-default",
+  "subject_id": "replace-with-local-private-id",
+  "version": 1,
+  "status": "pending",
+  "authorization_record": "../consent/consent-record.json",
+  "reference_video": {
+    "path": null,
+    "sha256": null,
+    "source_qa": null
+  },
+  "approved_template": {
+    "sha256": null,
+    "canvas": null,
+    "crop": null,
+    "sample_qa": null
+  },
+  "needs_attention_reason": "complete authorized avatar onboarding",
+  "approved_at": null
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "subject": {
+    "name": "replace-locally",
+    "relationship": "self"
+  },
+  "permissions": {
+    "voice_clone": true,
+    "likeness_lip_sync": true,
+    "video_editing": true,
+    "publication": true,
+    "commercial_use": false,
+    "model_training": false,
+    "transfer_to_others": false,
+    "platforms": [],
+    "territory": "replace-locally",
+    "starts_at": null,
+    "expires_at": null
+  },
+  "notice": {
+    "purpose": "replace-locally",
+    "processing_method": "voice cloning and mouth-only lip sync",
+    "data_categories": ["voice", "face video"],
+    "storage_location": "local",
+    "retention": "replace-locally",
+    "rights_and_risks_explained": false
+  },
+  "evidence": {
+    "type": "self_declaration",
+    "path": null,
+    "sha256": null,
+    "confirmation_text": null,
+    "confirmed_at": null
+  },
+  "revocation": {
+    "method": "replace-locally",
+    "contact": "replace-locally"
+  }
+}

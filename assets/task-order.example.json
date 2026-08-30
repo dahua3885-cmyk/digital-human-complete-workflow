@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "order_id": "YYYYMMDD-HHMMSS-project-slug",
+  "entry_stage": "rewrite",
+  "target_stage": "packaging",
+  "status": "ready",
+  "current_stage": "rewrite",
+  "source": {
+    "kind": "url",
+    "value": "https://example.invalid/video",
+    "sha256": null
+  },
+  "asset_center": {
+    "path": "../../profiles/asset-center.json",
+    "snapshot_sha256": null
+  },
+  "workflow_profile": {
+    "path": "../../profiles/workflow-profile.json",
+    "snapshot_sha256": null
+  },
+  "stage_skills": {
+    "rewrite": {"skill": "your-video-rewrite-skill"},
+    "voice": {"skill": "your-authorized-voice-skill"},
+    "avatar": {"skill": "your-digital-human-video-skill"},
+    "packaging": {"skill": "your-video-packaging-skill"}
+  },
+  "stages": {
+    "rewrite": {
+      "state": "ready",
+      "input_handoff": null,
+      "output_handoff": null,
+      "estimate": {
+        "status": "required_before_start",
+        "low_minutes": null,
+        "high_minutes": null,
+        "basis": null
+      },
+      "failure": null
+    },
+    "voice": {
+      "state": "queued",
+      "input_handoff": null,
+      "output_handoff": null,
+      "estimate": {
+        "status": "required_before_start",
+        "low_minutes": null,
+        "high_minutes": null,
+        "basis": null
+      },
+      "failure": null
+    },
+    "avatar": {
+      "state": "queued",
+      "input_handoff": null,
+      "output_handoff": null,
+      "estimate": {
+        "status": "required_before_start",
+        "low_minutes": null,
+        "high_minutes": null,
+        "basis": null
+      },
+      "failure": null
+    },
+    "packaging": {
+      "state": "queued",
+      "input_handoff": null,
+      "output_handoff": null,
+      "estimate": {
+        "status": "required_before_start",
+        "low_minutes": null,
+        "high_minutes": null,
+        "basis": null
+      },
+      "failure": null
+    }
+  },
+  "next_action": {
+    "type": "estimate_and_start",
+    "stage": "rewrite",
+    "label": "开始二创"
+  },
+  "history": []
+}

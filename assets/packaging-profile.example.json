@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "profile_id": "packaging-default",
+  "version": 1,
+  "status": "pending",
+  "layout": {
+    "canvas": "1080x1920",
+    "person_position": "bottom_right",
+    "background": "black",
+    "accent": "cyan_blue",
+    "cover_required": true
+  },
+  "brand_assets": {
+    "brand_name": null,
+    "logo_path": null,
+    "font_paths": [],
+    "cover_portrait_path": null,
+    "cta": null,
+    "disclaimer": null
+  },
+  "asset_qa": null,
+  "needs_attention_reason": "complete brand and cover assets",
+  "approved_at": null
+}

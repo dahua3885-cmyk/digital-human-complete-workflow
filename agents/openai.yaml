@@ -1,0 +1,7 @@
+interface:
+  display_name: "数字人完整流程"
+  short_description: "数字人全流程，或分别制作二创、数字人和剪辑包装"
+  default_prompt: "Use $digital-human-complete-workflow 首次启用时逐字发送固定三段欢迎语，只替换两个文档链接，禁止添加任何版本或技术状态。"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "asset_center_id": "local-digital-human-assets",
+  "owner_local_id": "replace-with-local-private-id",
+  "updated_at": null,
+  "profiles": {
+    "creator": {
+      "profile_id": "creator-default",
+      "version": 1,
+      "status": "pending",
+      "path": "./creator-profile.md",
+      "feedback_log": "../feedback/rewrite-feedback.md",
+      "sha256": null,
+      "needs_attention_reason": "complete creator profile"
+    },
+    "voice": {
+      "profile_id": "voice-default",
+      "version": 1,
+      "status": "pending",
+      "path": "../.private/voice/voice-profile.json",
+      "feedback_log": "../feedback/voice-feedback.md",
+      "sha256": null,
+      "needs_attention_reason": "complete authorized voice onboarding"
+    },
+    "avatar": {
+      "profile_id": "avatar-default",
+      "version": 1,
+      "status": "pending",
+      "path": "../.private/avatar/avatar-profile.json",
+      "feedback_log": "../feedback/avatar-feedback.md",
+      "sha256": null,
+      "needs_attention_reason": "complete authorized avatar onboarding"
+    },
+    "packaging": {
+      "profile_id": "packaging-default",
+      "version": 1,
+      "status": "pending",
+      "path": "./packaging-profile.json",
+      "feedback_log": "../feedback/packaging-feedback.md",
+      "sha256": null,
+      "needs_attention_reason": "complete brand and cover assets"
+    }
+  },
+  "allowed_statuses": [
+    "ready",
+    "pending",
+    "needs_recalibration",
+    "needs_review",
+    "not_selected",
+    "blocked"
+  ],
+  "privacy": {
+    "stores_raw_voice": false,
+    "stores_raw_likeness": false,
+    "stores_secrets": false,
+    "references_local_private_paths_only": true
+  }
+}

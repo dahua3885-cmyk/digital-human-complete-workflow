@@ -1,0 +1,38 @@
+# Local secrets and user workspaces
+.env
+.env.*
+.private/
+profiles/
+projects/
+runtime-config.json
+workflow-profile.json
+creator-profile.md
+task-order.json
+
+# Personal media and model payloads
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.mp4
+*.mov
+*.avi
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.safetensors
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.pem
+*.key
+
+# Python and OS artifacts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.DS_Store
+Thumbs.db

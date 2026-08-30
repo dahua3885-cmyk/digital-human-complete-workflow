@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "profile_id": "my-digital-human-stack",
+  "stage_execution": "serial",
+  "entry_modes": ["full", "from_script", "from_audio", "packaging_only"],
+  "stage_skills": {
+    "rewrite": {
+      "skill": "your-video-rewrite-skill"
+    },
+    "voice": {
+      "skill": "your-authorized-voice-skill"
+    },
+    "avatar": {
+      "skill": "your-digital-human-video-skill"
+    },
+    "packaging": {
+      "skill": "your-video-packaging-skill"
+    }
+  },
+  "gates": {
+    "lawful_use_declaration": "explicit_user",
+    "identity_authorization": "verified_before_media_processing",
+    "script_approval": "explicit_user",
+    "audio_approval": "explicit_user",
+    "avatar_qa": "required",
+    "avatar_approval": "explicit_user",
+    "packaging_sample": "internal_required",
+    "final_delivery_qa": "required"
+  },
+  "policies": {
+    "distribution_verification": "required_before_onboarding",
+    "runtime_preflight": "required_before_stage_execution",
+    "end_to_end_ready_claim": "only_after_all_stage_checks",
+    "first_run_onboarding": "required_local_status",
+    "asset_center": "local_profile_index",
+    "task_order": "required_for_every_run",
+    "cross_stage_handoff": "path_hash_no_copy_paste",
+    "estimate_before_stage_or_retry": "required",
+    "user_facing_estimate": "simple_stage_range",
+    "feedback_logs": "per_module_scoped",
+    "offline_behavior": "show_network_issue_disable_generation",
+    "quality_semantics": "needs_optimization_not_broken",
+    "project_change_semantics": "needs_update_preserve_history",
+    "material_collection": "disclose_all_collect_by_stage",
+    "profile_reuse": "persistent_until_recalibration_required",
+    "module_activation": "independent_by_entry",
+    "voice_style_confirmation_scope": "once_per_valid_voice_profile",
+    "voice_style_reprompt_each_project": false,
+    "intake_disclosure": "full_requirements_upfront_by_entry",
+    "third_party_identity": "verified_consent_required",
+    "prohibited_use_handling": "stop_and_record",
+    "maintainer_mode": "local_open_source_no_uploads_by_default",
+    "creator_profile": "quick_or_pro",
+    "voice_calibration": "three_style_first_confirmation",
+    "pronunciation_research": "chinese_context_online_required",
+    "avatar_capture": "pre_recording_brief_then_mouth_only_qa",
+    "sensitive_data_storage": "local_private_by_default",
+    "packaging_layout_selection": "disabled",
+    "packaging_canvas": "1080x1920",
+    "packaging_person_position": "bottom_right",
+    "packaging_cover": "required",
+    "generated_content_disclosure": "required"
+  },
+  "artifact_integrity": {
+    "algorithm": "sha256"
+  },
+  "paths": {
+    "project_root": "./projects",
+    "delivery_root": "./delivery"
+  },
+  "privacy": {
+    "commit_identity_assets": false,
+    "commit_reference_voice": false,
+    "commit_secrets": false
+  }
+}
