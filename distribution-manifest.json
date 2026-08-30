@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "digital-human-complete-workflow",
-  "package_version": "0.9.4-draft",
+  "package_version": "0.9.5-draft",
   "release_status": "public_preview",
   "license": "Apache-2.0",
   "bundle_scope": "orchestration-and-verification",
@@ -67,6 +67,8 @@
     "scripts/preflight_runtime.py",
     "scripts/prepare_first_use_docs.py",
     "scripts/render_customer_asset_status.py",
+    "scripts/save_creator_profile.py",
+    "scripts/test_customer_journey.py",
     "scripts/test_customer_asset_status.py",
     "scripts/test_first_use_docs.py",
     "scripts/validate_workflow_profile.py",

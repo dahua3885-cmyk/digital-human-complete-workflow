@@ -56,7 +56,11 @@ def write_text_new(path: Path, text: str) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("workspace", type=Path, help="New or empty local user workspace")
+    parser.add_argument(
+        "workspace",
+        type=Path,
+        help="Local user workspace; unrelated existing files are preserved",
+    )
     parser.add_argument(
         "--modules",
         type=parse_modules,
@@ -81,14 +85,6 @@ def main() -> int:
     if status_path.exists():
         print(f"ERROR: onboarding already initialized: {status_path}", file=sys.stderr)
         return 2
-    if workspace.exists() and any(workspace.iterdir()):
-        print(
-            "ERROR: workspace must be new or empty to prevent accidental overwrite: "
-            f"{workspace}",
-            file=sys.stderr,
-        )
-        return 2
-
     template_name = (
         "creator-profile-quick.template.md"
         if args.creator_profile == "quick"
@@ -118,6 +114,46 @@ def main() -> int:
     missing = [str(path) for path in required_assets if not path.is_file()]
     if missing:
         print(f"ERROR: missing bundled asset(s): {', '.join(missing)}", file=sys.stderr)
+        return 2
+
+    planned_outputs = [
+        workspace / "profiles" / "creator-profile.md",
+        workspace / "数字人完整流程.md",
+        workspace / "开始使用前请先填写.md",
+        workspace / "forms" / "创作者资料-简洁版.md",
+        workspace / "forms" / "创作者资料-专业版.md",
+        workspace / "forms" / "合法使用与授权声明.md",
+        workspace / "profiles" / "workflow-profile.json",
+        workspace / "profiles" / "asset-center.json",
+        workspace / ".private" / "consent" / "lawful-use-and-consent-declaration.md",
+        workspace / "guides" / "voice-recording-guide.md",
+        workspace / "guides" / "avatar-recording-checklist.md",
+        workspace / "feedback" / "rewrite-feedback.md",
+        workspace / "feedback" / "voice-feedback.md",
+        workspace / "feedback" / "avatar-feedback.md",
+        workspace / "feedback" / "packaging-feedback.md",
+        workspace / ".private" / ".gitignore",
+        status_path,
+    ]
+    if "voice" in args.modules or "avatar" in args.modules:
+        planned_outputs.append(
+            workspace / ".private" / "consent" / "consent-record.json"
+        )
+    if "voice" in args.modules:
+        planned_outputs.append(workspace / ".private" / "voice" / "voice-profile.json")
+    if "avatar" in args.modules:
+        planned_outputs.append(
+            workspace / ".private" / "avatar" / "avatar-profile.json"
+        )
+    if "packaging" in args.modules:
+        planned_outputs.append(workspace / "profiles" / "packaging-profile.json")
+    conflicts = [str(path) for path in planned_outputs if path.exists()]
+    if conflicts:
+        print(
+            "ERROR: onboarding would overwrite existing managed file(s): "
+            + ", ".join(conflicts),
+            file=sys.stderr,
+        )
         return 2
 
     directories = (

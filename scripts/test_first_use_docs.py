@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -40,6 +41,9 @@ def main() -> int:
 
         manual = Path(first["manual_path"])
         profile = Path(first["profile_path"])
+        visible_path = manual.as_posix().lower()
+        if "draft" in visible_path or re.search(r"/\d+\.\d+\.\d+(?:[-/]|$)", visible_path):
+            raise AssertionError("customer document path must not expose internal versions")
         for copied, name in zip((manual, profile), DOCUMENTS, strict=True):
             assert_inside(copied, workspace)
             if copied.read_bytes() != (SKILL_ROOT / name).read_bytes():

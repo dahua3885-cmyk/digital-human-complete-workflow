@@ -24,16 +24,16 @@ def files_match(folder: Path, sources: dict[str, bytes]) -> bool:
     )
 
 
-def choose_output_folder(base: Path, version: str, sources: dict[str, bytes]) -> Path:
-    first = base / version
+def choose_output_folder(base: Path, sources: dict[str, bytes]) -> Path:
+    first = base / "最新版"
     if not first.exists() or files_match(first, sources):
         return first
 
     digest = hashlib.sha256(b"\0".join(sources[name] for name in DOCUMENTS)).hexdigest()[:8]
-    numbered = base / f"{version}-{digest}"
+    numbered = base / f"更新版-{digest}"
     counter = 2
     while numbered.exists() and not files_match(numbered, sources):
-        numbered = base / f"{version}-{digest}-{counter}"
+        numbered = base / f"更新版-{digest}-{counter}"
         counter += 1
     return numbered
 
@@ -76,14 +76,16 @@ def main() -> int:
     manifest_path = skill_root / "distribution-manifest.json"
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        version = str(manifest["package_version"])
+        package_version = manifest["package_version"]
+        if not isinstance(package_version, str) or not package_version.strip():
+            raise KeyError("package_version")
         sources = {name: (skill_root / name).read_bytes() for name in DOCUMENTS}
     except (OSError, UnicodeError, KeyError, json.JSONDecodeError) as exc:
         print(f"ERROR: cannot prepare first-use documents: {exc}", file=sys.stderr)
         return 1
 
     output_root = workspace / OUTPUT_FOLDER
-    output_dir = choose_output_folder(output_root, version, sources)
+    output_dir = choose_output_folder(output_root, sources)
     output_dir.mkdir(parents=True, exist_ok=True)
     for name, content in sources.items():
         destination = output_dir / name

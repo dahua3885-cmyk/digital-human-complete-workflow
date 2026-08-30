@@ -30,5 +30,7 @@ jobs:
         run: python scripts/test_first_use_docs.py
       - name: Test customer-facing Chinese status
         run: python scripts/test_customer_asset_status.py
+      - name: Test complete customer journey
+        run: python scripts/test_customer_journey.py
       - name: Validate example workflow profile
         run: python scripts/validate_workflow_profile.py assets/workflow-profile.example.json
