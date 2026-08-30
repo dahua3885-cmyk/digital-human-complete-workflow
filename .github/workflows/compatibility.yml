@@ -28,5 +28,7 @@ jobs:
         run: python scripts/verify_distribution.py .
       - name: Test first-use document delivery
         run: python scripts/test_first_use_docs.py
+      - name: Test customer-facing Chinese status
+        run: python scripts/test_customer_asset_status.py
       - name: Validate example workflow profile
         run: python scripts/validate_workflow_profile.py assets/workflow-profile.example.json

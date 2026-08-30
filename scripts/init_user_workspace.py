@@ -216,11 +216,12 @@ def main() -> int:
     module_status = {}
     for module in VALID_MODULES:
         selected = module in selected_modules
+        default_status = "ready" if module == "packaging" and selected else "pending"
         module_status[module] = {
             "selected": selected,
-            "status": "pending" if selected else "not_selected",
+            "status": default_status if selected else "not_selected",
             "steps": {
-                step: "pending" if selected else "not_selected"
+                step: default_status if selected else "not_selected"
                 for step in MODULE_STEPS[module]
             },
         }

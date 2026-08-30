@@ -34,11 +34,11 @@
     "packaging": {
       "profile_id": "packaging-default",
       "version": 1,
-      "status": "pending",
+      "status": "ready",
       "path": "./packaging-profile.json",
       "feedback_log": "../feedback/packaging-feedback.md",
       "sha256": null,
-      "needs_attention_reason": "complete brand and cover assets"
+      "needs_attention_reason": null
     }
   },
   "allowed_statuses": [

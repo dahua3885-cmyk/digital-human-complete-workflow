@@ -2,7 +2,7 @@
   "schema_version": 1,
   "profile_id": "packaging-default",
   "version": 1,
-  "status": "pending",
+  "status": "ready",
   "layout": {
     "canvas": "1080x1920",
     "person_position": "bottom_right",
@@ -19,6 +19,6 @@
     "disclaimer": null
   },
   "asset_qa": null,
-  "needs_attention_reason": "complete brand and cover assets",
+  "needs_attention_reason": null,
   "approved_at": null
 }
