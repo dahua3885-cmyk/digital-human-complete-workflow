@@ -1,0 +1,32 @@
+name: Compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Verify distribution
+        run: python scripts/verify_distribution.py .
+      - name: Test first-use document delivery
+        run: python scripts/test_first_use_docs.py
+      - name: Validate example workflow profile
+        run: python scripts/validate_workflow_profile.py assets/workflow-profile.example.json

@@ -2,7 +2,7 @@
 name: digital-human-complete-workflow
 description: Coordinate or partially run an authorized digital-human workflow across source-video rewrite, voice generation, mouth-only avatar video, and one fixed portrait information-layout packaging stage. Use for 完整数字人流程、给视频链接二创后做数字人、直接用文案做数字人、确认音频后做数字人画面、直接把现成数字人口播视频做包装, or resuming from a verified handoff. This skill routes and validates stages; it does not replace the configured production skills.
 metadata:
-  version: "0.9.1-draft"
+  version: "0.9.2-draft"
 ---
 
 # 数字人完整流程 Skill
@@ -25,9 +25,9 @@ metadata:
 - 首次只选择基础信息简洁版或专业版；声音、形象和包装资料在实际进入对应模块时再建档。未建立声音或形象资料不得阻塞单独二创或剪辑包装入口，但进入相关数字人阶段前必须完成该模块建档。
 - 初始化工作区时同时建立二创、数字人音频、数字人形象、剪辑包装四个独立反馈文件；完整读取 [用户反馈沉淀与品牌资料](references/feedback-and-brand-assets.md)。
 
-独立 Skill 没有安装完成后主动发送聊天消息的安装钩子，不得声称“安装瞬间自动弹窗”。第一次点击、显式调用或由任务隐式触发本 Skill 时，先确认当前 Codex 活动任务工作区，运行 `python scripts/prepare_first_use_docs.py <当前活动工作区>`。该脚本把安装目录中的两份最新版客户文档复制到工作区内版本化的 `数字人完整流程资料/` 目录，并输出带工作区绝对链接的固定欢迎语。必须逐字发送脚本标准输出，不展开文档正文。不得直接链接 `.codex/skills/` 安装目录，因为 Codex 文件查看器可能识别文件名却拒绝打开工作区外文件。脚本会复用内容相同的副本；若发现同版本文件已经被用户修改，则另建目录，不覆盖用户内容。首次引导不得要求用户在“数字人全流程 / 分别制作”之间二选一。Skill 本身不创建独立工作台。
+独立 Skill 没有安装完成后主动发送聊天消息的安装钩子，不得声称“安装瞬间自动弹窗”。第一次点击、显式调用或由任务隐式触发本 Skill 时，先确认当前 Codex 活动任务工作区，运行 `python scripts/prepare_first_use_docs.py <当前活动工作区> --format json`。该脚本把安装目录中的两份最新版客户文档复制到工作区内版本化的 `数字人完整流程资料/` 目录，并返回两个本地绝对路径、GitHub 在线备用链接和固定欢迎语。若当前环境提供 `open_in_codex` 或等效的 Codex 文件打开能力，必须先用返回的 `manual_path`、`profile_path` 主动打开两个工作区副本；没有该能力时跳过主动打开，但仍发送在线可点击链接。脚本会复用内容相同的副本；若发现同版本文件已经被用户修改，则另建目录，不覆盖用户内容。不得直接打开或链接 `.codex/skills/` 安装目录。首次引导不得要求用户在“数字人全流程 / 分别制作”之间二选一。Skill 本身不创建独立工作台。
 
-首次欢迎语是客户可见的固定输出协议，不是参考结构。必须逐字保留下方三段可见文字、段落顺序、标点和称呼；唯一允许变化的是把两个带书名号的文档名称分别渲染为 Markdown 文件链接，链接目标必须是 `prepare_first_use_docs.py` 刚刚生成并验证存在的工作区绝对路径，客户可见的文档名称不得改变。不得自己猜测路径，不得回退到 Skill 安装目录。不得在三段之前、之间或之后增加任何文字，不得显示版本号、`draft`、发行校验、运行配置、阶段绑定、工作区初始化、端到端状态、内部限制或其他技术说明。内部校验成功必须静默；只有发行文件实质损坏、没有可用活动工作区或两份工作区副本无法交付时，才可以不用固定欢迎语并准确报告阻塞。
+首次欢迎语是客户可见的固定输出协议，不是参考结构。主动打开两个工作区副本后，必须逐字发送脚本 JSON 中的 `welcome_markdown`，不自行重写。它保留固定三段文字，并把两个文档名称链接到 GitHub 公共在线页，作为不同操作系统和文件查看器的备用入口；客户可见名称不得改变。只有用户明确处于离线环境时，才改发脚本提供的 `local_welcome_markdown`。不得自己猜测路径，不得回退到 Skill 安装目录。不得在三段之前、之间或之后增加任何文字，不得显示版本号、`draft`、发行校验、运行配置、阶段绑定、工作区初始化、端到端状态、内部限制或其他技术说明。内部校验成功必须静默；只有发行文件实质损坏、没有可用活动工作区且在线文档也不可用，才可以不用固定欢迎语并准确报告阻塞。
 
 ```markdown
 数字人完整流程 Skill 已安装完成。
@@ -51,7 +51,7 @@ metadata:
 
 1. 完整读取 [入口路由](references/entry-routing.md)、[阶段合同](references/stage-contracts.md) 与 [责任边界和滥用处理](references/maintainer-liability-and-abuse.md)。
 2. 先识别本次是纯本地开源运行、使用者自建服务，还是维护者提供的托管/代制作。不得把纯开源免责声明自动套给托管或代制作业务。
-3. 读取首次启用状态；首次调用必须先用 `prepare_first_use_docs.py` 把两份最新版文档准备到当前活动工作区，再严格执行上方固定欢迎协议，只发送三段固定文字和两个工作区内可点击文件，不把文档正文或内部技术状态铺在聊天中。收到用户复制回传的资料后，按上方“一次填写即可建档”规则直接建立创作者资料；[开工资料清单](assets/preflight-intake-checklist.md) 只用于用户实际发起某条制作任务后的项目资料和分阶段素材，不得反过来追加创作者问卷。
+3. 读取首次启用状态；首次调用必须先用 `prepare_first_use_docs.py --format json` 把两份最新版文档准备到当前活动工作区，有 Codex 文件打开能力时主动打开两个本地副本，再严格发送脚本返回的固定欢迎语和两个 GitHub 在线备用链接。不得把文档正文或内部技术状态铺在聊天中。收到用户复制回传的资料后，按上方“一次填写即可建档”规则直接建立创作者资料；[开工资料清单](assets/preflight-intake-checklist.md) 只用于用户实际发起某条制作任务后的项目资料和分阶段素材，不得反过来追加创作者问卷。
 4. 让用户完成 [合法使用与授权声明](assets/lawful-use-and-consent-declaration.template.md)。拒绝声明、用途含糊、授权无法证明或出现高风险冒用迹象时停在 `preflight`；声明不是免责万能证明，也不能覆盖已经可见的异常。
 5. 找到项目指定的 `workflow-profile.json`。没有时，从 [示例 Profile](assets/workflow-profile.example.json) 复制到项目目录并完成绑定；字段解释见 [Profile 规范](references/profile-schema.md)。
 6. 运行 `python scripts/validate_workflow_profile.py <workflow-profile.json>`。结构校验失败时停止，不得猜测阶段 Skill。

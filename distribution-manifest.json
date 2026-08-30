@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "package_name": "digital-human-complete-workflow",
-  "package_version": "0.9.1-draft",
+  "package_version": "0.9.2-draft",
   "release_status": "public_preview",
   "license": "Apache-2.0",
   "bundle_scope": "orchestration-and-verification",
   "end_to_end_runtime_included": false,
   "required_internal_files": [
     ".gitignore",
+    ".github/workflows/compatibility.yml",
     "README.md",
     "LICENSE",
     "NOTICE",
@@ -64,6 +65,7 @@
     "scripts/init_user_workspace.py",
     "scripts/preflight_runtime.py",
     "scripts/prepare_first_use_docs.py",
+    "scripts/test_first_use_docs.py",
     "scripts/validate_workflow_profile.py",
     "scripts/update_task_order.py",
     "scripts/verify_distribution.py"
