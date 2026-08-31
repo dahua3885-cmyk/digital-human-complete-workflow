@@ -22,12 +22,26 @@ def resolve_config_path(config_dir: Path, value: str) -> Path:
     return path.resolve() if path.is_absolute() else (config_dir / path).resolve()
 
 
+def discover_skill_root(name: str, script_root: Path) -> Path | None:
+    candidates = [script_root.parent / name]
+    codex_home = os.getenv("CODEX_HOME")
+    if codex_home:
+        candidates.append(Path(codex_home).expanduser() / "skills" / name)
+    candidates.append(Path.home() / ".codex" / "skills" / name)
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if (resolved / "SKILL.md").is_file():
+            return resolved
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("config", type=Path)
     args = parser.parse_args()
     config_path = args.config.resolve()
     config_dir = config_path.parent
+    installed_skill_root = Path(__file__).resolve().parents[1]
     errors: list[str] = []
     ready: list[str] = []
 
@@ -62,11 +76,16 @@ def main() -> int:
         root_value = entry.get("skill_root")
         if not isinstance(name, str) or not name or "replace-" in name:
             errors.append(f"{prefix}.skill_name is not configured")
-        if not isinstance(root_value, str) or not root_value or "replace-" in root_value:
+        if isinstance(root_value, str) and root_value and "replace-" not in root_value:
+            skill_root = resolve_config_path(config_dir, root_value)
+        elif isinstance(name, str) and name and "replace-" not in name:
+            skill_root = discover_skill_root(name, installed_skill_root)
+            if skill_root is None:
+                errors.append(f"{prefix}: Skill {name!r} is not installed or discoverable")
+                continue
+        else:
             errors.append(f"{prefix}.skill_root is not configured")
             continue
-
-        skill_root = resolve_config_path(config_dir, root_value)
         skill_md = skill_root / "SKILL.md"
         if not skill_md.is_file():
             errors.append(f"{prefix}: missing SKILL.md at {skill_root}")
@@ -132,4 +151,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

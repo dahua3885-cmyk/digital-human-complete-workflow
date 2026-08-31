@@ -32,5 +32,7 @@ jobs:
         run: python scripts/test_customer_asset_status.py
       - name: Test complete customer journey
         run: python scripts/test_customer_journey.py
+      - name: Test bundled avatar stage
+        run: python scripts/test_avatar_stage.py
       - name: Validate example workflow profile
         run: python scripts/validate_workflow_profile.py assets/workflow-profile.example.json

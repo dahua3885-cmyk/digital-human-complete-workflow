@@ -21,7 +21,7 @@
   "stage_skills": {
     "rewrite": {"skill": "your-video-rewrite-skill"},
     "voice": {"skill": "your-authorized-voice-skill"},
-    "avatar": {"skill": "your-digital-human-video-skill"},
+    "avatar": {"skill": "digital-human-avatar-musetalk"},
     "packaging": {"skill": "your-video-packaging-skill"}
   },
   "stages": {

@@ -20,15 +20,11 @@
       ]
     },
     "avatar": {
-      "skill_name": "replace-with-digital-human-video-skill",
+      "skill_name": "digital-human-avatar-musetalk",
       "skill_root": null,
       "adapter_contract_version": 1,
       "readiness_attested": false,
-      "checks": [
-        {"type": "command", "value": "ffmpeg"},
-        {"type": "command", "value": "ffprobe"},
-        {"type": "path", "value": "replace-with-avatar-model-or-provider-config-path"}
-      ]
+      "checks": []
     },
     "packaging": {
       "skill_name": "replace-with-video-packaging-skill",
@@ -43,4 +39,3 @@
     }
   }
 }
-

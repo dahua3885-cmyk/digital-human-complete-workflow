@@ -11,7 +11,8 @@
       "skill": "your-authorized-voice-skill"
     },
     "avatar": {
-      "skill": "your-digital-human-video-skill"
+      "skill": "digital-human-avatar-musetalk",
+      "bundled_path": "bundled-stages/digital-human-avatar-musetalk"
     },
     "packaging": {
       "skill": "your-video-packaging-skill"

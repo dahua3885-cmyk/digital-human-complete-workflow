@@ -39,6 +39,19 @@ def main() -> int:
     if manifest.get("package_name") != "digital-human-complete-workflow":
         errors.append("distribution manifest package_name mismatch")
 
+    try:
+        default_profile = json.loads(
+            (root / "assets" / "workflow-profile.example.json").read_text(encoding="utf-8")
+        )
+        avatar_binding = default_profile["stage_skills"]["avatar"]
+        if avatar_binding.get("skill") != "digital-human-avatar-musetalk":
+            errors.append("default avatar stage must use digital-human-avatar-musetalk")
+        bundled_path = avatar_binding.get("bundled_path")
+        if not isinstance(bundled_path, str) or not (root / bundled_path / "SKILL.md").is_file():
+            errors.append("default avatar stage bundled_path is missing or invalid")
+    except (OSError, UnicodeError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        errors.append(f"cannot validate default avatar stage binding: {exc}")
+
     required = manifest.get("required_internal_files")
     if not isinstance(required, list) or not required:
         errors.append("required_internal_files must be a non-empty list")

@@ -110,6 +110,11 @@ def main() -> int:
             raise AssertionError("initialization failed after first-use documents were prepared")
         if unrelated.read_text(encoding="utf-8") != "不得删除或覆盖\n":
             raise AssertionError("initialization changed an unrelated customer file")
+        workflow_profile = json.loads(
+            (workspace / "profiles" / "workflow-profile.json").read_text(encoding="utf-8")
+        )
+        if workflow_profile["stage_skills"]["avatar"]["skill"] != "digital-human-avatar-musetalk":
+            raise AssertionError("new customers still receive an example avatar binding")
 
         profile_source = workspace / "已填写资料.md"
         profile_source.write_text(quick_profile(), encoding="utf-8")

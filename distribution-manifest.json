@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_name": "digital-human-complete-workflow",
-  "package_version": "0.9.5-draft",
+  "package_version": "0.9.6-draft",
   "release_status": "public_preview",
   "license": "Apache-2.0",
   "bundle_scope": "orchestration-and-verification",
@@ -20,6 +20,11 @@
     "开始使用前请先填写.md",
     "安装话术.md",
     "agents/openai.yaml",
+    "bundled-stages/digital-human-avatar-musetalk/SKILL.md",
+    "bundled-stages/digital-human-avatar-musetalk/references/runtime.md",
+    "bundled-stages/digital-human-avatar-musetalk/scripts/check_runtime.py",
+    "bundled-stages/digital-human-avatar-musetalk/scripts/render_musetalk.py",
+    "bundled-stages/digital-human-avatar-musetalk/scripts/setup_runtime.py",
     "assets/asset-center.example.json",
     "assets/avatar-profile.example.json",
     "assets/avatar-recording-checklist.md",
@@ -64,11 +69,14 @@
     "references/workflow-optimization-audit.md",
     "scripts/create_task_order.py",
     "scripts/init_user_workspace.py",
+    "scripts/install_bundled_stage_skills.py",
+    "scripts/migrate_stage_bindings.py",
     "scripts/preflight_runtime.py",
     "scripts/prepare_first_use_docs.py",
     "scripts/render_customer_asset_status.py",
     "scripts/save_creator_profile.py",
     "scripts/test_customer_journey.py",
+    "scripts/test_avatar_stage.py",
     "scripts/test_customer_asset_status.py",
     "scripts/test_first_use_docs.py",
     "scripts/validate_workflow_profile.py",
@@ -100,12 +108,16 @@
   "required_external_capabilities": [
     "generic rewrite stage Skill",
     "authorized voice stage Skill and model/provider",
-    "authorized avatar stage Skill and model/provider",
+    "MuseTalk 1.5 runtime, public model weights, NVIDIA CUDA environment, and authorized avatar media",
     "packaging stage Skill and rendering runtime",
     "stage-specific commands, models, licenses, hardware, and user-authorized media"
   ],
   "release_blockers": [
-    "four generic stage implementations are not bundled",
+    "generic voice and packaging production implementations are not bundled",
+    "bundled MuseTalk avatar stage still requires a compatible local runtime and public model download",
     "end-to-end public demo has not passed"
+  ],
+  "bundled_stage_skills": [
+    "digital-human-avatar-musetalk"
   ]
 }

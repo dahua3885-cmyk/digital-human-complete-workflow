@@ -17,7 +17,7 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 - **发行包完整**：总控 Skill 的说明、模板、脚本、配置和引用文件没有缺失或损坏。
 - **端到端可运行**：发行包完整，并且四个阶段 Skill、模型/服务、命令、授权素材和硬件都已配置，通过运行预检和演示任务。
 
-本 Skill 可以用脚本保证第一项。第二项取决于发行仓库是否同时提供四个通用阶段 Skill 或明确可安装源，以及用户是否具备模型、服务授权和硬件；缺任一项都不能宣称“一下载就能完整运行”。
+本 Skill 可以用脚本保证第一项，并在 0.9.6 起随包安装 `digital-human-avatar-musetalk` 画面阶段。第二项仍取决于其余阶段实现、MuseTalk 模型与 CUDA 环境、用户选择的声音/包装运行时、服务授权和硬件；缺任一项都不能宣称“一下载就能完整运行”。
 
 这些是维护者和生产阶段的技术边界。首次客户启用时只执行 `SKILL.md` 的固定三段欢迎协议，不向客户展示版本号、发行校验、工作区状态、运行配置或端到端状态。只有用户实际发起某个生产阶段且该阶段预检不通过时，才说明与当前请求直接相关的缺口。
 
@@ -32,7 +32,7 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 
    只有出现 `DISTRIBUTION_OK` 才表示关键文件、JSON、Python语法和本地引用完整。
 
-3. 把 `assets/runtime-config.example.json` 复制到用户私有工作区，命名为 `runtime-config.json`。不要在公开仓库里填写模型路径、密钥和真人素材路径。
+3. 静默运行 `python scripts/install_bundled_stage_skills.py`，确认 `digital-human-avatar-musetalk` 已安装到同一 Codex Skills 目录；旧工作区再运行 `migrate_stage_bindings.py`。然后把 `assets/runtime-config.example.json` 复制到用户私有工作区，命名为 `runtime-config.json`。不要在公开仓库里填写模型路径、密钥和真人素材路径。
 4. 为四个阶段填写实际 `skill_name`、`skill_root` 和 provider/model/runtime 检查。每个阶段都必须符合 [阶段适配器合同](stage-adapter-contract.md)。
 5. 运行运行时预检：
 
@@ -66,7 +66,7 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 
 ## 发行仓库要真正做到一键运行还必须包含
 
-- 四个通用阶段 Skill，或可复现、固定版本、带校验值的安装源。
+- 所有通用阶段 Skill，或可复现、固定版本、带校验值的安装源；0.9.6 已满足数字人画面阶段这一项。
 - 阶段适配器能力和交接物合同。
 - Python/Node/ffmpeg 等运行环境的版本与安装方式。
 - 模型或服务提供商的获得方式、许可证、所需显存/网络和配置方式；不能把不可再分发权重偷偷塞进仓库。
@@ -77,7 +77,7 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 
 以下任一存在时，只能称“编排草案”或“发行候选”，不能称完整可运行版：
 
-- Profile 里仍是 `your-*` 或 `replace-*` 示例绑定。
+- Profile 中本次要启用的阶段仍是 `your-*` 或 `replace-*` 示例绑定；默认数字人画面阶段不允许再出现此情况。
 - 四个阶段 Skill 只有作者本机路径，没有公共安装源。
 - 模型/服务、ffmpeg、运行时或关键脚本未通过预检。
 - 阶段 Skill 包含个人参考声、肖像、密钥或作者机器绝对路径。

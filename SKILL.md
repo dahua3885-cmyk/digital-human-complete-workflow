@@ -2,7 +2,7 @@
 name: digital-human-complete-workflow
 description: Coordinate or partially run an authorized digital-human workflow across source-video rewrite, voice generation, mouth-only avatar video, and one fixed portrait information-layout packaging stage. Use for 完整数字人流程、给视频链接二创后做数字人、直接用文案做数字人、确认音频后做数字人画面、直接把现成数字人口播视频做包装, or resuming from a verified handoff. This skill routes and validates stages; it does not replace the configured production skills.
 metadata:
-  version: "0.9.5-draft"
+  version: "0.9.6-draft"
 ---
 
 # 数字人完整流程 Skill
@@ -19,11 +19,12 @@ metadata:
 
 安装动作本身不得静默执行代码或采集个人资料。第一次调用本 Skill 时先完整读取 [下载、安装与可运行验收](references/installation-and-runtime.md)：
 
-1. 静默运行 `python scripts/verify_distribution.py <Skill目录>`；未出现 `DISTRIBUTION_OK` 时停止并准确报告文件损坏或缺失。校验通过时不得把版本号、发行校验或发行范围写进客户欢迎语。
+1. 静默运行 `python scripts/verify_distribution.py <Skill目录>`；未出现 `DISTRIBUTION_OK` 时停止并准确报告文件损坏或缺失。随后静默运行 `python scripts/install_bundled_stage_skills.py`，把随包提供的通用数字人画面 Skill 安装到同一 Codex Skills 目录。校验和内置阶段安装成功时不得把版本号、发行校验或内部路径写进客户欢迎语。
 2. 在用户选择的工作区检查 `profiles/onboarding-status.json`：
 
 - 不存在：完整读取并执行 [首次启用与本地建档](references/first-run-onboarding.md)。可用 `python scripts/init_user_workspace.py <工作区> --modules all --creator-profile quick` 创建安全骨架，再通过对话完成资料。
 - 已存在：读取 [数字人资产中心与四模块串联](references/asset-center-and-module-chaining.md)。内部可以继续使用 `ready / pending / needs_recalibration / needs_review / not_selected / blocked`，但这些英文枚举、JSON 字段名和代码样式标签绝不直接显示给客户。确有必要显示准备情况时，必须运行 `python scripts/render_customer_asset_status.py <asset-center.json>` 并使用其中文输出，只补当前入口真正缺少或需要重新校准的资料。
+- 已存在旧版 `profiles/workflow-profile.json` 时，静默运行 `python scripts/migrate_stage_bindings.py <workflow-profile.json>`；只把旧的精确示例画面绑定迁移为 `digital-human-avatar-musetalk`，绝不覆盖用户自定义的真实画面 Skill。
 - 首次只选择基础信息简洁版或专业版；声音、形象和包装资料在实际进入对应模块时再建档。未建立声音或形象资料不得阻塞单独二创或剪辑包装入口，但进入相关数字人阶段前必须完成该模块建档。
 - 初始化工作区时同时建立二创、数字人音频、数字人形象、剪辑包装四个独立反馈文件；完整读取 [用户反馈沉淀与品牌资料](references/feedback-and-brand-assets.md)。
 
@@ -47,7 +48,7 @@ metadata:
 
 首次启用只做一次完整告知，形成长期本地资料库；每条新视频只收来源、文案、用途、动态事实和本条素材。所有真人声音、肖像与授权仍按阶段最小化提交，不在安装时自动上传。
 
-当前公开包的 `distribution-manifest.json` 标记为 `end_to_end_runtime_included=false`：它能验证总控发行文件，但不包含四个通用阶段 Skill、模型/服务和真实授权素材。正式仓库补齐这些依赖并通过端到端演示前，只能称发行草案，不能承诺所有电脑下载即完整生成。此信息是维护者和生产阶段的内部边界，不得出现在首次客户欢迎语中。
+当前公开包已经随附并自动安装 `digital-human-avatar-musetalk` 通用画面阶段 Skill，因此默认 Profile 不再使用数字人画面的示例绑定。MuseTalk 的数 GB 公开模型、Python/CUDA 环境和用户本人授权素材仍不能直接塞进轻量 Skill 包，首次真正使用数字人画面前必须由该阶段的 `check_runtime.py` 验证；缺运行环境时，在进入数字人制作前说明具体缺口并经用户同意后运行其安装脚本。`distribution-manifest.json` 仍标记为 `end_to_end_runtime_included=false`，因为通用声音与包装执行器、模型/服务及完整公开演示尚未全部交付；不得把流程路由成功冒充端到端生成成功。此信息不进入固定首次欢迎语，但用户真正发起完整流程或数字人制作时必须在开始耗时制作前完成预检，不能等音频确认后才暴露画面依赖。
 
 ## 开工前
 
@@ -84,7 +85,7 @@ metadata:
 
 ## 阶段执行规则
 
-进入每个阶段前，主执行者必须重新完整读取 Profile 指定阶段 Skill 的 `SKILL.md`，再读取其中标记为必读、开工前读取或与选定版本直接相关的引用。不得凭本 Skill 的摘要代替阶段 Skill。
+进入每个阶段前，主执行者必须重新完整读取 Profile 指定阶段 Skill 的 `SKILL.md`，再读取其中标记为必读、开工前读取或与选定版本直接相关的引用。`stage_skills.*.bundled_path` 存在时，先相对本 Skill 根目录解析并读取该内置阶段；否则从 Codex Skills 目录按名称发现。不得凭本 Skill 的摘要代替阶段 Skill。
 
 ### 1. 二创
 
@@ -113,7 +114,8 @@ metadata:
 
 ### 3. 数字人画面
 
-- 完整读取 [参考视频录制与体检标准](references/avatar-capture-standard.md)、[授权和合成标识](references/consent-and-disclosure.md) 与 [私有资料存储](references/storage-and-scale.md)，再执行 `stage_skills.avatar.skill`。
+- 完整读取 [参考视频录制与体检标准](references/avatar-capture-standard.md)、[授权和合成标识](references/consent-and-disclosure.md) 与 [私有资料存储](references/storage-and-scale.md)，再执行 `stage_skills.avatar.skill`。默认公开 Profile 绑定随包安装的 `digital-human-avatar-musetalk`；不得再把 `your-digital-human-video-skill` 当成可运行绑定。
+- 在数字人制作任务正式开始前就运行 `digital-human-avatar-musetalk/scripts/check_runtime.py --json`。未就绪时只说明具体缺少 GPU、Python、FFmpeg、模型或配置中的哪一项；不得等到用户确认完音频才第一次检查，也不得让客户另外寻找“真实可行的数字人 Skill”。
 - 在用户开始录制前，必须先发送 [录制前检查清单](assets/avatar-recording-checklist.md)，解释时长、构图、动作、光线、背景和拒收项，并取得用户已知悉的确认。用户已有素材时不补录确认，但仍按同一标准体检并说明风险。
 - 开始前重新计算音频哈希，验证声音与肖像的单独授权，并对真人参考视频执行素材体检。杂乱背景不是自动失败，但动态背景、多人、镜头移动、遮脸、强头部运动、失焦、曝光跳变、硬切或脸部检测失败均不得直接进入“只改嘴部”路线。
 - 阶段 Skill 不得修改已批准音频；任何音频变化都必须退回声音确认。
