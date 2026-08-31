@@ -61,6 +61,35 @@ def main() -> int:
         plan_payload = json.loads(plan.stdout)
         if plan_payload.get("commit") != "0a89dec45a0192b824e3cf4daf96c239440c5ed8":
             raise AssertionError("avatar runtime is not pinned to the reviewed official commit")
+        if plan_payload.get("engine_bundled") is not True:
+            raise AssertionError("avatar runtime plan does not use the bundled public engine")
+        if plan_payload.get("git") is not None:
+            raise AssertionError("avatar runtime still requires users to find or clone the engine")
+        if not (installed_skill / "vendor" / "MuseTalk" / "scripts" / "inference.py").is_file():
+            raise AssertionError("installed avatar Skill is missing the bundled MuseTalk engine")
+
+        prepared_root = temporary_root / "prepared-engine"
+        run([sys.executable, str(setup), "--runtime-root", str(prepared_root), "--prepare-engine-only"])
+        prepared_repo = prepared_root / "MuseTalk"
+        marker = json.loads((prepared_repo / ".codex-public-engine.json").read_text(encoding="utf-8"))
+        if not marker.get("overlay_tree_sha256"):
+            raise AssertionError("portable inference overlay was not recorded")
+        preprocessing = (prepared_repo / "musetalk" / "utils" / "preprocessing.py").read_text(encoding="utf-8")
+        if "from mmpose" in preprocessing or "musetalk.utils.face_detection" not in preprocessing:
+            raise AssertionError("portable inference overlay was not applied")
+
+        model_plan = run(
+            [
+                sys.executable,
+                str(installed_skill / "scripts" / "download_public_models.py"),
+                "--repo",
+                str(temporary_root / "model-plan"),
+                "--dry-run",
+            ]
+        )
+        model_payload = json.loads(model_plan.stdout)
+        if len(model_payload.get("models", [])) < 5:
+            raise AssertionError("public model download plan is incomplete")
 
         check_runtime = installed_skill / "scripts" / "check_runtime.py"
         missing = run(

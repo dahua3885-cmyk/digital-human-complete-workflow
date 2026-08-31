@@ -2,7 +2,7 @@
 name: digital-human-complete-workflow
 description: Coordinate or partially run an authorized digital-human workflow across source-video rewrite, voice generation, mouth-only avatar video, and one fixed portrait information-layout packaging stage. Use for 完整数字人流程、给视频链接二创后做数字人、直接用文案做数字人、确认音频后做数字人画面、直接把现成数字人口播视频做包装, or resuming from a verified handoff. This skill routes and validates stages; it does not replace the configured production skills.
 metadata:
-  version: "0.9.6-draft"
+  version: "0.9.7-draft"
 ---
 
 # 数字人完整流程 Skill
@@ -48,7 +48,7 @@ metadata:
 
 首次启用只做一次完整告知，形成长期本地资料库；每条新视频只收来源、文案、用途、动态事实和本条素材。所有真人声音、肖像与授权仍按阶段最小化提交，不在安装时自动上传。
 
-当前公开包已经随附并自动安装 `digital-human-avatar-musetalk` 通用画面阶段 Skill，因此默认 Profile 不再使用数字人画面的示例绑定。MuseTalk 的数 GB 公开模型、Python/CUDA 环境和用户本人授权素材仍不能直接塞进轻量 Skill 包，首次真正使用数字人画面前必须由该阶段的 `check_runtime.py` 验证；缺运行环境时，在进入数字人制作前说明具体缺口并经用户同意后运行其安装脚本。`distribution-manifest.json` 仍标记为 `end_to_end_runtime_included=false`，因为通用声音与包装执行器、模型/服务及完整公开演示尚未全部交付；不得把流程路由成功冒充端到端生成成功。此信息不进入固定首次欢迎语，但用户真正发起完整流程或数字人制作时必须在开始耗时制作前完成预检，不能等音频确认后才暴露画面依赖。
+当前公开包已经随附并自动安装 `digital-human-avatar-musetalk` 通用画面阶段 Skill，且直接包含固定版本、带许可证与完整性校验的 MuseTalk 1.5 公开推理源码，因此默认 Profile 不再使用数字人画面的示例绑定，也不得让用户另找引擎。数 GB 公开模型、Python/CUDA 环境和用户本人授权素材由首次运行准备器在使用者本机获得；首次真正使用数字人画面前必须由该阶段的 `check_runtime.py` 验证。缺运行环境时，在进入数字人制作前说明具体缺口，经用户同意后由 `setup_runtime.py` 自动复制随包引擎、建立专用 Python、安装锁定依赖、下载固定 revision 的公开模型并记录哈希。`distribution-manifest.json` 仍标记为 `end_to_end_runtime_included=false`，因为通用声音与包装执行器及完整四阶段公开演示尚未全部交付；不得把画面阶段可运行冒充四阶段端到端已经完整。此信息不进入固定首次欢迎语，但用户真正发起完整流程或数字人制作时必须在开始耗时制作前完成预检，不能等音频确认后才暴露画面依赖。
 
 ## 开工前
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -20,9 +21,9 @@ REQUIRED_REPO_FILES = (
     "models/sd-vae/diffusion_pytorch_model.bin",
     "models/whisper/config.json",
     "models/whisper/pytorch_model.bin",
-    "models/dwpose/dw-ll_ucoco_384.pth",
     "models/face-parse-bisent/79999_iter.pth",
     "models/face-parse-bisent/resnet18-5c106cde.pth",
+    "musetalk/utils/face_detection/detection/sfd/s3fd.pth",
 )
 
 
@@ -48,7 +49,15 @@ def command_path(value: object) -> Path | None:
     return Path(found).resolve() if found else None
 
 
-def inspect(config_path: Path) -> dict[str, object]:
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def inspect(config_path: Path, *, deep: bool = False) -> dict[str, object]:
     problems: list[str] = []
     result: dict[str, object] = {
         "ready": False,
@@ -72,6 +81,29 @@ def inspect(config_path: Path) -> dict[str, object]:
         missing = [name for name in REQUIRED_REPO_FILES if not (repo / name).is_file()]
         if missing:
             problems.append("MuseTalk 代码或模型文件不完整：" + "、".join(missing))
+        marker = repo / ".codex-public-engine.json"
+        result["engine_source"] = "随 Skill 提供的公开 MuseTalk 引擎" if marker.is_file() else "使用者登记的已有 MuseTalk 环境"
+        local_manifest = repo / "models-manifest.local.json"
+        if marker.is_file() and not local_manifest.is_file():
+            problems.append("公开模型尚未通过安装器下载和校验")
+        elif local_manifest.is_file():
+            try:
+                model_data = json.loads(local_manifest.read_text(encoding="utf-8"))
+                for item in model_data.get("files", []):
+                    relative = item.get("path")
+                    expected_size = item.get("bytes")
+                    candidate = (repo / relative).resolve() if isinstance(relative, str) else None
+                    if candidate is None or repo not in candidate.parents or not candidate.is_file():
+                        problems.append("公开模型校验清单引用了无效文件")
+                        break
+                    if candidate.stat().st_size != expected_size:
+                        problems.append(f"公开模型文件大小不一致：{relative}")
+                        break
+                    if deep and sha256(candidate) != item.get("sha256"):
+                        problems.append(f"公开模型文件哈希不一致：{relative}")
+                        break
+            except (OSError, UnicodeError, json.JSONDecodeError, TypeError):
+                problems.append("公开模型校验清单无法读取")
 
     python_path = command_path(data.get("python"))
     if python_path is None:
@@ -126,8 +158,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=default_config())
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--deep", action="store_true", help="Also hash every downloaded public model")
     args = parser.parse_args()
-    result = inspect(args.config.expanduser().resolve())
+    result = inspect(args.config.expanduser().resolve(), deep=args.deep)
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     elif result["ready"]:

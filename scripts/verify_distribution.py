@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import json
 import re
 import sys
@@ -58,6 +59,70 @@ def main() -> int:
     except (OSError, UnicodeError, KeyError, TypeError, json.JSONDecodeError) as exc:
         errors.append(f"cannot validate default avatar stage binding: {exc}")
 
+    try:
+        vendor_manifest = json.loads(
+            (
+                root
+                / "bundled-stages"
+                / "digital-human-avatar-musetalk"
+                / "vendor"
+                / "manifest.json"
+            ).read_text(encoding="utf-8")
+        )
+        vendor_root = (
+            root
+            / "bundled-stages"
+            / "digital-human-avatar-musetalk"
+            / "vendor"
+            / "MuseTalk"
+        )
+        digest = hashlib.sha256()
+        vendor_files = sorted(path for path in vendor_root.rglob("*") if path.is_file())
+        for path in vendor_files:
+            digest.update(path.relative_to(vendor_root).as_posix().encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(path.read_bytes())
+            digest.update(b"\0")
+        if len(vendor_files) != vendor_manifest.get("file_count"):
+            errors.append("bundled MuseTalk engine file count mismatch")
+        if digest.hexdigest() != vendor_manifest.get("tree_sha256"):
+            errors.append("bundled MuseTalk engine digest mismatch")
+        if not (vendor_root / "LICENSE").is_file() or not (vendor_root / "scripts" / "inference.py").is_file():
+            errors.append("bundled MuseTalk engine is missing its license or inference entrypoint")
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(f"cannot validate bundled MuseTalk engine: {exc}")
+
+    try:
+        overlay_manifest = json.loads(
+            (
+                root
+                / "bundled-stages"
+                / "digital-human-avatar-musetalk"
+                / "overlays"
+                / "manifest.json"
+            ).read_text(encoding="utf-8")
+        )
+        overlay_root = (
+            root
+            / "bundled-stages"
+            / "digital-human-avatar-musetalk"
+            / "overlays"
+            / "portable-inference"
+        )
+        digest = hashlib.sha256()
+        overlay_files = sorted(path for path in overlay_root.rglob("*") if path.is_file())
+        for path in overlay_files:
+            digest.update(path.relative_to(overlay_root).as_posix().encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(path.read_bytes())
+            digest.update(b"\0")
+        if len(overlay_files) != overlay_manifest.get("file_count"):
+            errors.append("portable MuseTalk overlay file count mismatch")
+        if digest.hexdigest() != overlay_manifest.get("tree_sha256"):
+            errors.append("portable MuseTalk overlay digest mismatch")
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(f"cannot validate portable MuseTalk overlay: {exc}")
+
     required = manifest.get("required_internal_files")
     if not isinstance(required, list) or not required:
         errors.append("required_internal_files must be a non-empty list")
@@ -98,6 +163,8 @@ def main() -> int:
             errors.append(f"invalid Python {path.relative_to(root)}: {exc}")
 
     for path in root.rglob("*.md"):
+        if "vendor" in path.relative_to(root).parts:
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
@@ -119,6 +186,8 @@ def main() -> int:
         if not path.is_file() or path.suffix.lower() not in scan_suffixes:
             continue
         relative = path.relative_to(root).as_posix()
+        if "vendor" in path.relative_to(root).parts:
+            continue
         if relative in allowed_absolute:
             continue
         try:

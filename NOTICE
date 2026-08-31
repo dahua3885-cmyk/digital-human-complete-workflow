@@ -1,2 +1,8 @@
 Digital Human Complete Workflow
 Copyright 2026 dahua3885-cmyk
+
+This distribution includes unmodified inference-source portions of MuseTalk,
+fixed at upstream commit 0a89dec45a0192b824e3cf4daf96c239440c5ed8.
+MuseTalk is Copyright (c) 2024 Tencent Music Entertainment Group and is
+distributed under the MIT License included at:
+bundled-stages/digital-human-avatar-musetalk/vendor/MuseTalk/LICENSE

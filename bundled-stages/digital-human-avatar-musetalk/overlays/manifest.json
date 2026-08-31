@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "portable-inference",
+  "base_commit": "0a89dec45a0192b824e3cf4daf96c239440c5ed8",
+  "file_count": 5,
+  "tree_sha256": "2b08b949cc8f8ba4be1309cc3908c49b5dd107128918e3a37cebec523af3fe3a",
+  "purpose": [
+    "use package-qualified imports",
+    "support trusted official weights with current PyTorch defaults",
+    "avoid optional compiled mmcv/mmpose extensions on Windows",
+    "use the detected face box for fixed frontal talking-head input"
+  ],
+  "privacy": "contains source changes only; no voice, likeness, media, identity or machine paths"
+}

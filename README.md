@@ -4,7 +4,7 @@
 
 `二创文案 → 数字人音频 → 数字人画面 → 剪辑包装`
 
-当前版本为 **0.9.6-draft 公开预览版**。仓库提供流程路由、首次建档、数字人资产中心、任务订单、阶段确认、路径与哈希交接、授权与安全规则，并随包提供可自动安装的 `digital-human-avatar-musetalk` 通用数字人画面阶段 Skill。MuseTalk 的数 GB 模型、Python/CUDA 环境、声音模型、包装运行时、第三方服务以及任何人的声音或肖像素材不会直接塞进轻量 Skill 包。因此它已经不再使用“数字人画面示例 Skill”，但仍不是所有电脑无需配置即可生成最终成片的一键模型包。
+当前版本为 **0.9.7-draft 公开预览版**。仓库提供流程路由、首次建档、数字人资产中心、任务订单、阶段确认、路径与哈希交接、授权与安全规则，并随包提供 `digital-human-avatar-musetalk` 通用数字人画面阶段 Skill、固定版本 MuseTalk 1.5 推理源码、第三方许可证、锁定依赖、固定模型来源、自动安装与真实渲染入口。朋友安装后不需要再寻找“数字人生成 Skill”或克隆引擎。数 GB 公开模型在首次画面制作时经用户同意自动下载到其本机；用户自己的声音、肖像和身份素材永远不进入仓库。
 
 ## 一、可以怎样使用
 
@@ -54,13 +54,15 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 
 用户只需选择简洁版或专业版填写一次，并按照文档末尾提示复制全文发回 Codex。资料完整后，不应再重复索要第二套资料。
 
-数字人画面默认绑定随包安装的 MuseTalk 1.5 阶段 Skill。第一次真正制作数字人前会检查本机 NVIDIA GPU、Python 3.10、FFmpeg、MuseTalk 代码和模型；已有环境可以直接登记，没有时会在用户同意数 GB 下载后安装。该检查必须发生在数字人制作开始前，不能等音频确认后才暴露依赖。
+数字人画面默认绑定随包安装的 MuseTalk 1.5 阶段 Skill，并直接带有可校验的公开推理引擎。第一次真正制作数字人前会检查本机 NVIDIA GPU、Python 3.10、FFmpeg 和公开模型；已有环境可以直接登记，没有时会在用户同意数 GB 下载后，由 Codex 自动复制内置引擎、建立专用 Python、安装依赖并下载固定 revision 模型。Windows 缺 Python 3.10 或 FFmpeg 时，可在用户同意系统更改后通过 winget 准备。该检查必须发生在数字人制作开始前，不能等音频确认后才暴露依赖。
 
 ## 三、兼容性验证
 
 仓库通过 GitHub Actions 在 Windows、macOS 和 Ubuntu、Python 3.11/3.12 上验证发行完整性、中文与空格工作区、两份文档复制、在线备用链接、用户修改保护、非空工作区初始化、资料一次建档、中文状态和四种任务入口。自动测试能证明这些文件与脚本行为，但不能证明所有 Codex 客户端版本的界面都完全相同；未在支持矩阵中验证的环境应视为实验性。
 
 ## 四、接入实际生成能力
+
+数字人画面阶段不再需要接入另一个外部 Skill。其余阶段的通用生产实现仍按以下方式接入：
 
 1. 将 [运行配置示例](assets/runtime-config.example.json) 复制到仓库之外的私有工作区，命名为 `runtime-config.json`。
 2. 为二创、音频、画面和包装四个阶段填写实际 Skill、命令、模型或服务检查项。
@@ -85,6 +87,6 @@ https://github.com/dahua3885-cmyk/digital-human-complete-workflow
 
 ## 六、开源范围与许可证
 
-本仓库内的代码和文档采用 [Apache License 2.0](LICENSE)。该许可证不授权任何人的声音、肖像、姓名、签名、账号品牌或商标；仓库也不包含这些资产。第三方模型、服务、素材和阶段 Skill 仍受各自许可证及服务条款约束。
+本仓库自行编写的代码和文档采用 [Apache License 2.0](LICENSE)。随包 MuseTalk 源码保持其 MIT License，原始许可证位于 `bundled-stages/digital-human-avatar-musetalk/vendor/MuseTalk/LICENSE`；公开模型与其他依赖仍受各自许可证约束。任何代码许可证都不授权人的声音、肖像、姓名、签名、账号品牌或商标；仓库不包含这些资产。
 
 当前已知限制和正式版条件见[当前阶段依赖审计](references/current-stage-dependency-audit.md)与[发行检查清单](references/release-checklist.md)。欢迎阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 后提交改进。

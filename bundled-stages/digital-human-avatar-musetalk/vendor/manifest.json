@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "component": "MuseTalk inference engine",
+  "upstream": "https://github.com/TMElyralab/MuseTalk",
+  "commit": "0a89dec45a0192b824e3cf4daf96c239440c5ed8",
+  "license": "MIT",
+  "file_count": 75,
+  "tree_sha256": "1d82a82f74b4f13a017fd5e9177ef66420bcc83d3ca412cb4160133d750b3ecd",
+  "included": [
+    "musetalk inference source",
+    "inference scripts",
+    "inference and training configuration files",
+    "upstream requirements",
+    "upstream model download scripts",
+    "upstream README and LICENSE"
+  ],
+  "excluded": [
+    "models and model weights",
+    "official test videos and audio",
+    "demo images",
+    "generated results",
+    "user voice, likeness and identity assets"
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "package_name": "digital-human-complete-workflow",
-  "package_version": "0.9.6-draft",
+  "package_version": "0.9.7-draft",
   "release_status": "public_preview",
   "license": "Apache-2.0",
-  "bundle_scope": "orchestration-and-verification",
+  "bundle_scope": "orchestration-with-bundled-avatar-engine",
   "end_to_end_runtime_included": false,
   "required_internal_files": [
     ".gitignore",
@@ -22,9 +22,19 @@
     "agents/openai.yaml",
     "bundled-stages/digital-human-avatar-musetalk/SKILL.md",
     "bundled-stages/digital-human-avatar-musetalk/references/runtime.md",
+    "bundled-stages/digital-human-avatar-musetalk/references/third-party-notices.md",
+    "bundled-stages/digital-human-avatar-musetalk/assets/public-models.json",
+    "bundled-stages/digital-human-avatar-musetalk/assets/requirements-runtime.txt",
     "bundled-stages/digital-human-avatar-musetalk/scripts/check_runtime.py",
+    "bundled-stages/digital-human-avatar-musetalk/scripts/download_public_models.py",
     "bundled-stages/digital-human-avatar-musetalk/scripts/render_musetalk.py",
     "bundled-stages/digital-human-avatar-musetalk/scripts/setup_runtime.py",
+    "bundled-stages/digital-human-avatar-musetalk/scripts/setup_windows_prerequisites.ps1",
+    "bundled-stages/digital-human-avatar-musetalk/vendor/manifest.json",
+    "bundled-stages/digital-human-avatar-musetalk/vendor/MuseTalk/LICENSE",
+    "bundled-stages/digital-human-avatar-musetalk/vendor/MuseTalk/scripts/inference.py",
+    "bundled-stages/digital-human-avatar-musetalk/overlays/manifest.json",
+    "bundled-stages/digital-human-avatar-musetalk/overlays/portable-inference/musetalk/utils/preprocessing.py",
     "assets/asset-center.example.json",
     "assets/avatar-profile.example.json",
     "assets/avatar-recording-checklist.md",
@@ -114,7 +124,7 @@
   ],
   "release_blockers": [
     "generic voice and packaging production implementations are not bundled",
-    "bundled MuseTalk avatar stage still requires a compatible local runtime and public model download",
+    "bundled MuseTalk avatar engine still requires compatible NVIDIA hardware and a one-time public model/dependency download",
     "end-to-end public demo has not passed"
   ],
   "bundled_stage_skills": [

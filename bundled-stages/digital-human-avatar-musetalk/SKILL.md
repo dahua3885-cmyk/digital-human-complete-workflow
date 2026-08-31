@@ -2,7 +2,7 @@
 name: digital-human-avatar-musetalk
 description: Generate an authorized mouth-only digital-human MP4 from a user-approved audio file and a user-authorized single-person reference video using a locally configured MuseTalk 1.5 runtime. Use for 数字人画面、数字人口型、确认音频后生成数字人视频. Do not generate or alter voice audio.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # 通用数字人画面｜MuseTalk 1.5
@@ -25,10 +25,16 @@ metadata:
    ```
 
    只有返回 `ready: true` 才能开始渲染。未就绪时不得再说“阶段绑定还是示例 Skill”；应根据 `problems_zh` 用中文说明当前电脑缺少的实际运行条件。
-5. 首次需要本地安装 MuseTalk 时，先告诉用户将下载数 GB 模型、需要 NVIDIA GPU、Windows/Linux、FFmpeg 和 Python 3.10；用户明确同意后才运行：
+5. 本 Skill 已经直接包含经过校验的 MuseTalk 1.5 公开推理源码，不得再让用户另外寻找、克隆或安装数字人画面引擎。首次需要准备本地运行环境时，先告诉用户将下载数 GB 公开模型和 Python 依赖，需要 NVIDIA GPU、Windows/Linux、FFmpeg 和 Python 3.10；用户明确同意后运行：
 
    ```powershell
    python scripts/setup_runtime.py --accept-large-download
+   ```
+
+   Windows 缺 Python 3.10 或 FFmpeg 且用户同意安装系统依赖时，运行：
+
+   ```powershell
+   python scripts/setup_runtime.py --accept-large-download --accept-system-changes
    ```
 
    已有可运行的 MuseTalk 1.5 环境时，使用 `--register-existing-repo` 和 `--register-existing-python` 登记，不重复下载。
@@ -62,4 +68,4 @@ python scripts/render_musetalk.py `
 - MuseTalk 版本、运行配置摘要和输出 SHA-256。
 - 技术 QA 结果与人工观看结论。
 
-MuseTalk 官方代码与模型来源、安装要求和许可证见 [运行环境说明](references/runtime.md)。
+MuseTalk 官方代码与模型来源、安装要求和许可证见 [运行环境说明](references/runtime.md) 与 [第三方组件说明](references/third-party-notices.md)。

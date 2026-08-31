@@ -1,0 +1,15 @@
+accelerate==1.11.0
+diffusers==0.30.2
+einops==0.8.1
+ffmpeg-python==0.2.0
+gdown==6.1.0
+huggingface-hub==0.30.2
+imageio==2.37.4
+imageio-ffmpeg==0.6.0
+librosa==0.11.0
+numpy==1.26.4
+omegaconf==2.3.1
+opencv-python==4.9.0.80
+requests==2.34.2
+soundfile==0.12.1
+transformers==4.39.2

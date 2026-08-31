@@ -26,7 +26,7 @@
 - 多个脚本默认路径指向作者本机测试工作区；模板循环区间和显存经验绑定当前真人素材及RTX 4050 6GB环境。
 - 缺模型仓库、权重、参考模板和运行环境时不能生成画面。
 
-0.9.6 已新增独立、去个人化的 `digital-human-avatar-musetalk` 公共阶段 Skill，并随总包自动安装；默认 Workflow Profile 不再使用示例画面绑定。该公共阶段固定官方 MuseTalk 仓库提交，提供运行检查、已有环境登记、用户同意后的模型安装和实际渲染脚本。MuseTalk 数 GB 权重、CUDA/Python 环境与真人授权素材仍在各使用者本机准备，不能假装随轻量 Skill 文件一起到位。
+0.9.7 已新增独立、去个人化的 `digital-human-avatar-musetalk` 公共阶段 Skill，并随总包自动安装；默认 Workflow Profile 不再使用示例画面绑定。该公共阶段直接随包提供固定官方提交的 MuseTalk 推理源码、MIT 许可证、源码树校验、锁定依赖、固定 revision 模型下载器、运行检查、已有环境登记和实际渲染脚本。MuseTalk 数 GB 权重由安装器下载并在使用者本机保存；CUDA/NVIDIA 硬件与真人授权素材仍由各使用者准备，不能把它们伪装成 GitHub 小文件已经携带。
 
 ## 剪辑包装
 
