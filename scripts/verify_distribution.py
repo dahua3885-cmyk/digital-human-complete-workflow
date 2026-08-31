@@ -19,6 +19,24 @@ WINDOWS_ABSOLUTE_PATH_RE = re.compile(
     r"(?i)(?<![a-z0-9])[a-z]:[\\/][^\s\"'<>]+[\\/]"
 )
 POSIX_HOME_MARKERS = ("/" + "users" + "/", "/" + "home" + "/")
+TEXT_HASH_SUFFIXES = {
+    ".bat",
+    ".json",
+    ".md",
+    ".py",
+    ".sh",
+    ".txt",
+    ".yaml",
+    ".yml",
+}
+TEXT_HASH_NAMES = {"LICENSE", "NOTICE"}
+
+
+def stable_file_bytes(path: Path) -> bytes:
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES or path.name in TEXT_HASH_NAMES:
+        return data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return data
 
 
 def main() -> int:
@@ -81,7 +99,7 @@ def main() -> int:
         for path in vendor_files:
             digest.update(path.relative_to(vendor_root).as_posix().encode("utf-8"))
             digest.update(b"\0")
-            digest.update(path.read_bytes())
+            digest.update(stable_file_bytes(path))
             digest.update(b"\0")
         if len(vendor_files) != vendor_manifest.get("file_count"):
             errors.append("bundled MuseTalk engine file count mismatch")
@@ -114,7 +132,7 @@ def main() -> int:
         for path in overlay_files:
             digest.update(path.relative_to(overlay_root).as_posix().encode("utf-8"))
             digest.update(b"\0")
-            digest.update(path.read_bytes())
+            digest.update(stable_file_bytes(path))
             digest.update(b"\0")
         if len(overlay_files) != overlay_manifest.get("file_count"):
             errors.append("portable MuseTalk overlay file count mismatch")

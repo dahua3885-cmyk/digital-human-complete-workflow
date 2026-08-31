@@ -23,6 +23,17 @@ OVERLAY_MANIFEST = STAGE_ROOT / "overlays" / "manifest.json"
 RUNTIME_REQUIREMENTS = STAGE_ROOT / "assets" / "requirements-runtime.txt"
 MODEL_DOWNLOADER = STAGE_ROOT / "scripts" / "download_public_models.py"
 MINIMUM_FREE_BYTES = 10 * 1024 * 1024 * 1024
+TEXT_HASH_SUFFIXES = {
+    ".bat",
+    ".json",
+    ".md",
+    ".py",
+    ".sh",
+    ".txt",
+    ".yaml",
+    ".yml",
+}
+TEXT_HASH_NAMES = {"LICENSE", "NOTICE"}
 
 
 def hidden_flags() -> int:
@@ -90,15 +101,20 @@ def find_media_command(name: str) -> str | None:
     return None
 
 
+def stable_file_bytes(path: Path) -> bytes:
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_HASH_SUFFIXES or path.name in TEXT_HASH_NAMES:
+        return data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return data
+
+
 def tree_sha256(root: Path) -> tuple[int, str]:
     digest = hashlib.sha256()
     files = sorted(path for path in root.rglob("*") if path.is_file())
     for path in files:
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
-        with path.open("rb") as stream:
-            for block in iter(lambda: stream.read(1024 * 1024), b""):
-                digest.update(block)
+        digest.update(stable_file_bytes(path))
         digest.update(b"\0")
     return len(files), digest.hexdigest()
 
