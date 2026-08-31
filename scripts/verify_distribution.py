@@ -22,7 +22,13 @@ POSIX_HOME_MARKERS = ("/" + "users" + "/", "/" + "home" + "/")
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("root", nargs="?", default=".", type=Path)
+    parser.add_argument(
+        "root",
+        nargs="?",
+        default=Path(__file__).resolve().parent.parent,
+        type=Path,
+        help="Skill package root; defaults to the package containing this script",
+    )
     args = parser.parse_args()
     root = args.root.resolve()
     manifest_path = root / "distribution-manifest.json"
