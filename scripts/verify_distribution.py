@@ -95,7 +95,10 @@ def main() -> int:
             / "MuseTalk"
         )
         digest = hashlib.sha256()
-        vendor_files = sorted(path for path in vendor_root.rglob("*") if path.is_file())
+        vendor_files = sorted(
+            (path for path in vendor_root.rglob("*") if path.is_file()),
+            key=lambda path: path.relative_to(vendor_root).as_posix(),
+        )
         for path in vendor_files:
             digest.update(path.relative_to(vendor_root).as_posix().encode("utf-8"))
             digest.update(b"\0")
@@ -128,7 +131,10 @@ def main() -> int:
             / "portable-inference"
         )
         digest = hashlib.sha256()
-        overlay_files = sorted(path for path in overlay_root.rglob("*") if path.is_file())
+        overlay_files = sorted(
+            (path for path in overlay_root.rglob("*") if path.is_file()),
+            key=lambda path: path.relative_to(overlay_root).as_posix(),
+        )
         for path in overlay_files:
             digest.update(path.relative_to(overlay_root).as_posix().encode("utf-8"))
             digest.update(b"\0")

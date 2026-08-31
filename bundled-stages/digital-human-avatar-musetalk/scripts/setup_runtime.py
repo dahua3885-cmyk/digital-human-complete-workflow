@@ -110,7 +110,10 @@ def stable_file_bytes(path: Path) -> bytes:
 
 def tree_sha256(root: Path) -> tuple[int, str]:
     digest = hashlib.sha256()
-    files = sorted(path for path in root.rglob("*") if path.is_file())
+    files = sorted(
+        (path for path in root.rglob("*") if path.is_file()),
+        key=lambda path: path.relative_to(root).as_posix(),
+    )
     for path in files:
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")

@@ -5,7 +5,7 @@
   "commit": "0a89dec45a0192b824e3cf4daf96c239440c5ed8",
   "license": "MIT",
   "file_count": 75,
-  "tree_sha256": "1d82a82f74b4f13a017fd5e9177ef66420bcc83d3ca412cb4160133d750b3ecd",
+  "tree_sha256": "2cf4a214f6d86f0dc53a494e9be460bc7c1171e2725ed884bf2af000c68b2d2d",
   "included": [
     "musetalk inference source",
     "inference scripts",
