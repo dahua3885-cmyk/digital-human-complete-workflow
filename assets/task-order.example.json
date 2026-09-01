@@ -19,10 +19,10 @@
     "snapshot_sha256": null
   },
   "stage_skills": {
-    "rewrite": {"skill": "your-video-rewrite-skill"},
-    "voice": {"skill": "your-authorized-voice-skill"},
+    "rewrite": {"skill": "digital-human-rewrite-generic"},
+    "voice": {"skill": "digital-human-voice-chatterbox"},
     "avatar": {"skill": "digital-human-avatar-musetalk"},
-    "packaging": {"skill": "your-video-packaging-skill"}
+    "packaging": {"skill": "digital-human-packaging-fixed"}
   },
   "stages": {
     "rewrite": {

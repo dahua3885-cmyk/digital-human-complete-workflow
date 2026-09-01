@@ -46,13 +46,19 @@ def runtime_root_default() -> Path:
 
 
 def run(command: list[str], *, cwd: Path | None = None, env: dict[str, str] | None = None) -> None:
-    subprocess.run(
+    completed = subprocess.run(
         command,
         cwd=cwd,
         env=env,
-        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
         creationflags=hidden_flags(),
     )
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout).strip().splitlines()
+        raise RuntimeError(detail[-1] if detail else "外部安装命令没有成功完成")
 
 
 def find_python310() -> list[str] | None:
@@ -208,6 +214,7 @@ def main() -> int:
     parser.add_argument("--prepare-engine-only", action="store_true", help="Copy and verify the bundled public engine without installing models")
     parser.add_argument("--register-existing-repo", type=Path)
     parser.add_argument("--register-existing-python", type=Path)
+    parser.add_argument("--repair-existing-models", action="store_true", help="为已登记环境补齐并校验公开模型")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -222,6 +229,15 @@ def main() -> int:
             print("已有 MuseTalk 仓库或 Python 路径无效。", file=sys.stderr)
             return 2
         root.mkdir(parents=True, exist_ok=True)
+        if args.repair_existing_models:
+            if not args.accept_large_download:
+                print("修复已有模型会下载公开模型，请同时增加 --accept-large-download。", file=sys.stderr)
+                return 2
+            try:
+                run([str(python_path), str(MODEL_DOWNLOADER), "--repo", str(repo)], env={**os.environ, "PYTHONUTF8": "1"})
+            except RuntimeError as exc:
+                print(f"公开模型修复没有完成：{exc}", file=sys.stderr)
+                return 2
         config = write_config(root, repo, python_path)
         print(f"已登记数字人画面运行环境：{config}")
         return 0
@@ -231,8 +247,8 @@ def main() -> int:
         if not powershell:
             print("没有找到 PowerShell，无法自动准备 Windows 公共依赖。", file=sys.stderr)
             return 2
-        run(
-            [
+        try:
+            run([
                 powershell,
                 "-NoProfile",
                 "-ExecutionPolicy",
@@ -240,8 +256,10 @@ def main() -> int:
                 "-File",
                 str(STAGE_ROOT / "scripts" / "setup_windows_prerequisites.ps1"),
                 "-AcceptSystemChanges",
-            ]
-        )
+            ])
+        except RuntimeError as exc:
+            print(f"Windows 公共依赖准备没有完成：{exc}", file=sys.stderr)
+            return 2
 
     try:
         vendor = verify_vendor()
@@ -321,15 +339,16 @@ def main() -> int:
 
     venv = root / "venv"
     python_command = list(requirements["python_3_10"])
-    if not venv.exists():
-        run(python_command + ["-m", "venv", str(venv)])
-    python_path = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-    install_env = dict(os.environ)
-    install_env["PIP_NO_CACHE_DIR"] = "1"
-    install_env["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
-    run([str(python_path), "-m", "pip", "install", "--upgrade", "pip"], env=install_env)
-    run(
-        [
+    try:
+        if not venv.exists():
+            run(python_command + ["-m", "venv", str(venv)])
+        python_path = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        install_env = dict(os.environ)
+        install_env["PIP_NO_CACHE_DIR"] = "1"
+        install_env["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+        install_env["PYTHONUTF8"] = "1"
+        run([str(python_path), "-m", "pip", "install", "--upgrade", "pip"], env=install_env)
+        run([
             str(python_path),
             "-m",
             "pip",
@@ -339,11 +358,12 @@ def main() -> int:
             "torchaudio==2.0.2",
             "--index-url",
             "https://download.pytorch.org/whl/cu118",
-        ],
-        env=install_env,
-    )
-    run([str(python_path), "-m", "pip", "install", "-r", str(RUNTIME_REQUIREMENTS)], env=install_env)
-    run([str(python_path), str(MODEL_DOWNLOADER), "--repo", str(repo)], env=install_env)
+        ], env=install_env)
+        run([str(python_path), "-m", "pip", "install", "-r", str(RUNTIME_REQUIREMENTS)], env=install_env)
+        run([str(python_path), str(MODEL_DOWNLOADER), "--repo", str(repo)], env=install_env)
+    except RuntimeError as exc:
+        print(f"MuseTalk 运行环境安装没有完成：{exc}。修正网络、磁盘或依赖后可安全重试。", file=sys.stderr)
+        return 2
 
     config = write_config(root, repo, python_path)
     print(f"数字人画面运行环境已安装：{config}")

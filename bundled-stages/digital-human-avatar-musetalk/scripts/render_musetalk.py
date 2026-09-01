@@ -42,6 +42,22 @@ def duration(payload: dict[str, object]) -> float:
     return float(raw.get("duration", 0)) if isinstance(raw, dict) else 0.0
 
 
+def verify_consent(path: Path) -> str:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"授权记录无法读取：{exc}") from exc
+    permissions = payload.get("permissions", {})
+    evidence = payload.get("evidence", {})
+    if payload.get("lawful_use_confirmed") is not True:
+        raise ValueError("尚未确认合法使用")
+    if not isinstance(permissions, dict) or permissions.get("likeness_lip_sync") is not True:
+        raise ValueError("授权记录没有允许肖像口型合成")
+    if not isinstance(evidence, dict) or evidence.get("confirmed") is not True:
+        raise ValueError("授权记录缺少可验证的确认凭证")
+    return sha256(path)
+
+
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -50,6 +66,7 @@ def main() -> int:
     parser.add_argument("--audio", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--runtime-config", type=Path, default=default_config())
+    parser.add_argument("--consent-record", type=Path, required=True)
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--dry-run", action="store_true")
@@ -61,6 +78,12 @@ def main() -> int:
     if not video.is_file() or not audio.is_file():
         print("数字人画面输入不完整：请提供有效的参考视频和已确认音频。", file=sys.stderr)
         return 2
+    consent = args.consent_record.expanduser().resolve()
+    try:
+        consent_sha256 = verify_consent(consent)
+    except ValueError as exc:
+        print(f"数字人画面不能开始：{exc}。", file=sys.stderr)
+        return 2
     runtime = inspect(args.runtime_config.expanduser().resolve())
     if not runtime["ready"]:
         print("数字人画面暂时不能开始：" + "；".join(runtime["problems_zh"]) + "。", file=sys.stderr)
@@ -70,6 +93,7 @@ def main() -> int:
         "provider": "official-musetalk-1.5",
         "video_sha256": sha256(video),
         "audio_sha256": sha256(audio),
+        "consent_record_sha256": consent_sha256,
         "output": str(output),
         "fps": args.fps,
         "batch_size": args.batch_size,

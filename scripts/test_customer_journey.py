@@ -14,7 +14,7 @@ from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = SKILL_ROOT / "scripts"
-EXACT_PROFILE_SUCCESS = "个人资料已建立，数字人全流程和分别制作均可使用。"
+EXACT_PROFILE_SUCCESS = "个人资料已建立。现在可以提交视频链接、文案、音频或视频；开始制作前我会先检查本次需要的运行环境。"
 INTERNAL_CUSTOMER_TOKENS = (
     "ready",
     "pending",
@@ -81,6 +81,10 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="数字人客户全流程 空格 ") as temporary:
         workspace = Path(temporary)
+        previous_codex_home = os.environ.get("CODEX_HOME")
+        os.environ["CODEX_HOME"] = str(workspace / "codex-home")
+        (workspace / "codex-home" / "skills").mkdir(parents=True)
+        run_script("install_bundled_stage_skills.py", "--skills-dir", str(workspace / "codex-home" / "skills"))
         unrelated = workspace / "客户原有项目.txt"
         unrelated.write_text("不得删除或覆盖\n", encoding="utf-8")
 
@@ -135,7 +139,7 @@ def main() -> int:
             "创作者资料：已建立",
             "数字人音频：首次使用时准备",
             "数字人形象：首次使用时准备",
-            "剪辑包装：可直接使用",
+            "剪辑包装：使用时自动准备",
         ):
             if expected not in status.stdout:
                 raise AssertionError(f"missing Chinese status: {expected}")
@@ -155,28 +159,12 @@ def main() -> int:
             raise AssertionError("missing-field reply is not specific or reassuring")
         assert_no_internal_customer_tokens(rejected.stderr, "missing-field reply")
 
-        for project, entry, target, source_kind, source in (
-            ("rewrite-test", "rewrite", "rewrite", "url", "https://example.com/video"),
-            ("digital-human-test", "voice", "avatar", "text", "这是一段最终口播文案。"),
-            ("packaging-test", "packaging", "packaging", "file", str(unrelated)),
-            ("full-workflow-test", "rewrite", "packaging", "url", "https://example.com/full"),
-        ):
-            created = run_script(
-                "create_task_order.py",
-                str(workspace),
-                "--project",
-                project,
-                "--entry",
-                entry,
-                "--target",
-                target,
-                "--source-kind",
-                source_kind,
-                "--source",
-                source,
-            )
-            if "TASK_ORDER_CREATED:" not in created.stdout:
-                raise AssertionError(f"task route was not created: {project}")
+        created = run_script("create_task_order.py", str(workspace), "--project", "rewrite-test", "--entry", "rewrite", "--target", "rewrite", "--source-kind", "url", "--source", "https://example.com/video")
+        if "TASK_ORDER_CREATED:" not in created.stdout:
+            raise AssertionError("ready rewrite route was not created")
+        blocked = run_script("create_task_order.py", str(workspace), "--project", "digital-human-test", "--entry", "voice", "--target", "avatar", "--source-kind", "text", "--source", "这是一段最终口播文案。", check=False)
+        if blocked.returncode == 0 or "授权" not in blocked.stderr:
+            raise AssertionError("media task was not blocked before authorization")
 
         skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         for heading in (
@@ -192,6 +180,11 @@ def main() -> int:
             raise AssertionError("a second initialization unexpectedly overwrote managed files")
         if unrelated.read_text(encoding="utf-8") != "不得删除或覆盖\n":
             raise AssertionError("repeat initialization changed an unrelated customer file")
+
+        if previous_codex_home is None:
+            os.environ.pop("CODEX_HOME", None)
+        else:
+            os.environ["CODEX_HOME"] = previous_codex_home
 
     print("CUSTOMER_JOURNEY_TEST_OK")
     return 0

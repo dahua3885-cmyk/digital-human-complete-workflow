@@ -34,11 +34,11 @@
     "packaging": {
       "profile_id": "packaging-default",
       "version": 1,
-      "status": "ready",
+      "status": "pending",
       "path": "./packaging-profile.json",
       "feedback_log": "../feedback/packaging-feedback.md",
       "sha256": null,
-      "needs_attention_reason": null
+      "needs_attention_reason": "verify the bundled packaging runtime before first use"
     }
   },
   "allowed_statuses": [

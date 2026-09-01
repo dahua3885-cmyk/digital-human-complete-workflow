@@ -26,13 +26,13 @@ Profile 只回答“这一套环境要调用哪四个阶段 Skill，以及通用
   "stage_execution": "serial",
   "entry_modes": ["full", "from_script", "from_audio", "packaging_only"],
   "stage_skills": {
-    "rewrite": {"skill": "your-video-rewrite-skill"},
-    "voice": {"skill": "your-authorized-voice-skill"},
+    "rewrite": {"skill": "digital-human-rewrite-generic"},
+    "voice": {"skill": "digital-human-voice-chatterbox"},
     "avatar": {
       "skill": "digital-human-avatar-musetalk",
       "bundled_path": "bundled-stages/digital-human-avatar-musetalk"
     },
-    "packaging": {"skill": "your-video-packaging-skill"}
+    "packaging": {"skill": "digital-human-packaging-fixed"}
   },
   "gates": {
     "lawful_use_declaration": "explicit_user",
@@ -95,7 +95,7 @@ Profile 只回答“这一套环境要调用哪四个阶段 Skill，以及通用
 
 - `skill` 必须写实际可发现的 Skill 名称，不写机器绝对路径，也不把 Skill 内容复制进 Profile。随总包发行的阶段可以额外写相对总包根目录的 `bundled_path`；默认画面阶段固定为 `digital-human-avatar-musetalk`。
 - 总控不会修改绑定 Skill；进入阶段时只读取并执行它。
-- 安装或升级总控时，`install_bundled_stage_skills.py` 会把受总控管理的公共画面阶段复制到同一 Codex Skills 目录；旧工作区中精确的 `your-digital-human-video-skill` 示例绑定由迁移脚本更新，用户自定义真实绑定不覆盖。
+- 安装或升级总控时，`install_bundled_stage_skills.py` 会把受总控管理的四个公共阶段复制到同一 Codex Skills 目录；旧工作区中精确的画面示例绑定由迁移脚本更新，用户自定义真实绑定不覆盖。
 - 本地专用 Skill 可以直接绑定。开源发布时只提交不含个人资产的通用示例，不提交专用 Profile。
 - 阶段 Skill 没有版本字段时，在交接物中写 `unknown`，并可额外记录其 `SKILL.md` SHA-256。
 - Profile 只能加强闸门。被绑定 Skill 要求额外人工确认、样片或 QA 时继续保留。

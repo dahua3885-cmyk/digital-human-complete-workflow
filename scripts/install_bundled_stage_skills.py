@@ -6,19 +6,27 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
 
 
-BUNDLED = ("digital-human-avatar-musetalk",)
+BUNDLED = (
+    "digital-human-rewrite-generic",
+    "digital-human-voice-chatterbox",
+    "digital-human-avatar-musetalk",
+    "digital-human-packaging-fixed",
+)
 MARKER = ".managed-by-digital-human-complete-workflow.json"
 
 
-def tree_hash(root: Path) -> str:
+def tree_hash(root: Path, *, source_template: bool = False) -> str:
     digest = hashlib.sha256()
     for path in sorted(item for item in root.rglob("*") if item.is_file()):
         relative = path.relative_to(root).as_posix()
+        if source_template and relative == "STAGE.md":
+            relative = "SKILL.md"
         if relative == MARKER or "__pycache__" in path.parts or path.suffix == ".pyc":
             continue
         digest.update(relative.encode("utf-8"))
@@ -31,6 +39,8 @@ def tree_hash(root: Path) -> str:
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--skills-dir",
@@ -46,10 +56,10 @@ def main() -> int:
     for name in BUNDLED:
         source = source_root / name
         destination = skills_dir / name
-        if not (source / "SKILL.md").is_file():
+        if not (source / "STAGE.md").is_file():
             print(f"内置阶段 Skill 缺失：{name}", file=sys.stderr)
             return 2
-        source_hash = tree_hash(source)
+        source_hash = tree_hash(source, source_template=True)
         marker = destination / MARKER
         if destination.exists() and not marker.is_file():
             print(
@@ -57,9 +67,14 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 2
-        destination.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(source, destination, dirs_exist_ok=True)
-        marker.write_text(
+        temporary = skills_dir / f".{name}.installing-{os.getpid()}"
+        backup = skills_dir / f".{name}.backup-{os.getpid()}"
+        if temporary.exists() or backup.exists():
+            print(f"检测到未清理的安装临时目录，暂时不能更新：{name}", file=sys.stderr)
+            return 2
+        shutil.copytree(source, temporary)
+        (temporary / "STAGE.md").replace(temporary / "SKILL.md")
+        (temporary / MARKER).write_text(
             json.dumps(
                 {
                     "manager": "digital-human-complete-workflow",
@@ -71,8 +86,22 @@ def main() -> int:
             + "\n",
             encoding="utf-8",
         )
-        if tree_hash(destination) != source_hash:
+        if tree_hash(temporary) != source_hash:
+            shutil.rmtree(temporary)
             print(f"内置阶段 Skill 安装后校验失败：{name}", file=sys.stderr)
+            return 2
+        try:
+            if destination.exists():
+                os.replace(destination, backup)
+            os.replace(temporary, destination)
+            if backup.exists():
+                shutil.rmtree(backup)
+        except OSError as exc:
+            if not destination.exists() and backup.exists():
+                os.replace(backup, destination)
+            if temporary.exists():
+                shutil.rmtree(temporary)
+            print(f"内置阶段 Skill 更新未完成：{name}：{exc}", file=sys.stderr)
             return 2
         installed.append({"name": name, "path": str(destination), "sha256": source_hash})
 

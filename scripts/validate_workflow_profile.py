@@ -96,9 +96,9 @@ def validate(profile: object) -> tuple[list[str], list[str]]:
                 errors.append(
                     f"stage_skills.{stage}.skill must be a valid skill name."
                 )
-            elif skill.startswith("your-"):
-                warnings.append(
-                    f"stage_skills.{stage}.skill is an example binding; replace it before a real run."
+            elif skill.startswith(("your-", "replace-")):
+                errors.append(
+                    f"stage_skills.{stage}.skill cannot be an example binding in a runnable profile."
                 )
 
     gates = profile.get("gates")
@@ -151,6 +151,10 @@ def validate(profile: object) -> tuple[list[str], list[str]]:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("profile", type=Path)
     args = parser.parse_args()

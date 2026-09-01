@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-CUSTOMER_MESSAGE = "个人资料已建立，数字人全流程和分别制作均可使用。"
+CUSTOMER_MESSAGE = "个人资料已建立。现在可以提交视频链接、文案、音频或视频；开始制作前我会先检查本次需要的运行环境。"
 VERSION_RE = re.compile(r"^资料版本[ \t]*[：:][ \t]*(.+?)[ \t]*$", re.MULTILINE)
 FIELD_RE = re.compile(r"^([^\n：:]+?)[ \t]*[：:][ \t]*(.*?)[ \t]*$", re.MULTILINE)
 
@@ -146,7 +146,7 @@ def main() -> int:
     for key in ("creator_profile", "source_preferences", "professional_boundaries"):
         steps[key] = "ready"
     ready_entries = onboarding.setdefault("ready_entry_modes", [])
-    for entry in ("rewrite", "packaging_only"):
+    for entry in ("rewrite",):
         if entry not in ready_entries:
             ready_entries.append(entry)
     onboarding["creator_profile_type"] = (

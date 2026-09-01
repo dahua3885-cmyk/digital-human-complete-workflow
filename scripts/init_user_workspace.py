@@ -101,6 +101,7 @@ def main() -> int:
         assets / "voice-recording-guide.md",
         assets / "avatar-recording-checklist.md",
         assets / "workflow-profile.example.json",
+        assets / "runtime-config.example.json",
         assets / "consent-record.example.json",
         assets / "voice-profile.example.json",
         assets / "asset-center.example.json",
@@ -124,6 +125,7 @@ def main() -> int:
         workspace / "forms" / "创作者资料-专业版.md",
         workspace / "forms" / "合法使用与授权声明.md",
         workspace / "profiles" / "workflow-profile.json",
+        workspace / "profiles" / "runtime-config.json",
         workspace / "profiles" / "asset-center.json",
         workspace / ".private" / "consent" / "lawful-use-and-consent-declaration.md",
         workspace / "guides" / "voice-recording-guide.md",
@@ -190,6 +192,10 @@ def main() -> int:
         assets / "workflow-profile.example.json",
         workspace / "profiles" / "workflow-profile.json",
     )
+    shutil.copyfile(
+        assets / "runtime-config.example.json",
+        workspace / "profiles" / "runtime-config.json",
+    )
     asset_center = json.loads(
         (assets / "asset-center.example.json").read_text(encoding="utf-8")
     )
@@ -252,7 +258,7 @@ def main() -> int:
     module_status = {}
     for module in VALID_MODULES:
         selected = module in selected_modules
-        default_status = "ready" if module == "packaging" and selected else "pending"
+        default_status = "pending"
         module_status[module] = {
             "selected": selected,
             "status": default_status if selected else "not_selected",

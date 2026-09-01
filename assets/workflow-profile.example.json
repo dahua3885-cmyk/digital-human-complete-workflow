@@ -5,17 +5,20 @@
   "entry_modes": ["full", "from_script", "from_audio", "packaging_only"],
   "stage_skills": {
     "rewrite": {
-      "skill": "your-video-rewrite-skill"
+      "skill": "digital-human-rewrite-generic",
+      "bundled_path": "bundled-stages/digital-human-rewrite-generic"
     },
     "voice": {
-      "skill": "your-authorized-voice-skill"
+      "skill": "digital-human-voice-chatterbox",
+      "bundled_path": "bundled-stages/digital-human-voice-chatterbox"
     },
     "avatar": {
       "skill": "digital-human-avatar-musetalk",
       "bundled_path": "bundled-stages/digital-human-avatar-musetalk"
     },
     "packaging": {
-      "skill": "your-video-packaging-skill"
+      "skill": "digital-human-packaging-fixed",
+      "bundled_path": "bundled-stages/digital-human-packaging-fixed"
     }
   },
   "gates": {

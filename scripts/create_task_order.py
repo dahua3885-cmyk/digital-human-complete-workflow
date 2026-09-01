@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,6 +33,10 @@ def sha256(path: Path) -> str:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("workspace", type=Path)
     parser.add_argument("--project", required=True, help="lowercase project slug")
@@ -52,8 +58,10 @@ def main() -> int:
     workspace = args.workspace.expanduser().resolve()
     asset_center = workspace / "profiles" / "asset-center.json"
     workflow_profile = workspace / "profiles" / "workflow-profile.json"
+    runtime_config = workspace / "profiles" / "runtime-config.json"
+    onboarding_status = workspace / "profiles" / "onboarding-status.json"
     projects = workspace / "projects"
-    if not asset_center.is_file() or not workflow_profile.is_file() or not projects.is_dir():
+    if not asset_center.is_file() or not workflow_profile.is_file() or not runtime_config.is_file() or not onboarding_status.is_file() or not projects.is_dir():
         print(
             "ERROR: workspace is not initialized or an asset/workflow profile is missing",
             file=sys.stderr,
@@ -69,13 +77,22 @@ def main() -> int:
         print("ERROR: workflow profile has no stage_skills object", file=sys.stderr)
         return 2
 
-    now = datetime.now(timezone.utc)
-    order_id = f"{now.strftime('%Y%m%d-%H%M%S')}-{args.project}"
-    project_dir = projects / order_id
-    if project_dir.exists():
-        print(f"ERROR: task order already exists: {project_dir}", file=sys.stderr)
-        return 2
-    (project_dir / "handoffs").mkdir(parents=True)
+    for stage in STAGES[entry_index : target_index + 1]:
+        binding = stage_skills.get(stage)
+        name = binding.get("skill") if isinstance(binding, dict) else None
+        if not isinstance(name, str) or name.startswith(("your-", "replace-")):
+            print(f"当前流程的 {stage} 阶段仍是示例绑定，不能开始真实任务。", file=sys.stderr)
+            return 2
+
+    if target_index >= STAGES.index("voice"):
+        try:
+            onboarding = json.loads(onboarding_status.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            print(f"授权状态无法读取：{exc}", file=sys.stderr)
+            return 2
+        if onboarding.get("lawful_use_declaration") != "verified" or onboarding.get("identity_authorization") != "verified":
+            print("开始数字人或剪辑包装前，请先完成本机合法使用与声音、肖像授权记录。", file=sys.stderr)
+            return 2
 
     source_sha256 = None
     if args.source_kind == "file":
@@ -87,6 +104,35 @@ def main() -> int:
         source_sha256 = sha256(source_path)
     else:
         source_value = args.source
+
+    requested_stages = ",".join(STAGES[entry_index : target_index + 1])
+    preflight = subprocess.run(
+        [sys.executable, str(Path(__file__).resolve().parent / "preflight_runtime.py"), str(runtime_config), "--stages", requested_stages, "--json"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env={**os.environ, "PYTHONUTF8": "1"},
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0,
+    )
+    try:
+        preflight_payload = json.loads(preflight.stdout)
+    except json.JSONDecodeError:
+        print("运行环境检查没有返回有效结果，暂时不能开始任务。", file=sys.stderr)
+        return 2
+    if preflight.returncode != 0 or preflight_payload.get("ready") is not True:
+        problems = preflight_payload.get("problems_zh", [])
+        detail = "；".join(item for item in problems if isinstance(item, str))
+        print("开始制作前需要先准备运行环境：" + (detail or "所需阶段尚未就绪") + "。", file=sys.stderr)
+        return 2
+
+    now = datetime.now(timezone.utc)
+    order_id = f"{now.strftime('%Y%m%d-%H%M%S-%f')}-{args.project}"
+    project_dir = projects / order_id
+    if project_dir.exists():
+        print(f"ERROR: task order already exists: {project_dir}", file=sys.stderr)
+        return 2
+    (project_dir / "handoffs").mkdir(parents=True)
 
     stages: dict[str, object] = {}
     for index, stage in enumerate(STAGES):

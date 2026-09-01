@@ -68,14 +68,33 @@ def main() -> int:
         default_profile = json.loads(
             (root / "assets" / "workflow-profile.example.json").read_text(encoding="utf-8")
         )
-        avatar_binding = default_profile["stage_skills"]["avatar"]
-        if avatar_binding.get("skill") != "digital-human-avatar-musetalk":
-            errors.append("default avatar stage must use digital-human-avatar-musetalk")
-        bundled_path = avatar_binding.get("bundled_path")
-        if not isinstance(bundled_path, str) or not (root / bundled_path / "SKILL.md").is_file():
-            errors.append("default avatar stage bundled_path is missing or invalid")
+        expected = {
+            "rewrite": "digital-human-rewrite-generic",
+            "voice": "digital-human-voice-chatterbox",
+            "avatar": "digital-human-avatar-musetalk",
+            "packaging": "digital-human-packaging-fixed",
+        }
+        for stage, name in expected.items():
+            binding = default_profile["stage_skills"][stage]
+            if binding.get("skill") != name:
+                errors.append(f"default {stage} stage must use {name}")
+            bundled_path = binding.get("bundled_path")
+            if not isinstance(bundled_path, str) or not (root / bundled_path / "STAGE.md").is_file():
+                errors.append(f"default {stage} bundled_path is missing or invalid")
     except (OSError, UnicodeError, KeyError, TypeError, json.JSONDecodeError) as exc:
-        errors.append(f"cannot validate default avatar stage binding: {exc}")
+        errors.append(f"cannot validate default stage bindings: {exc}")
+
+    try:
+        runtime = json.loads((root / "assets" / "runtime-config.example.json").read_text(encoding="utf-8"))
+        for stage in ("rewrite", "voice", "avatar", "packaging"):
+            entry = runtime["stages"][stage]
+            name = entry.get("skill_name")
+            if not isinstance(name, str) or name.startswith(("your-", "replace-")):
+                errors.append(f"runtime config contains placeholder binding: {stage}")
+            if entry.get("runtime_probe") != "scripts/check_runtime.py":
+                errors.append(f"runtime config lacks a real probe: {stage}")
+    except (OSError, UnicodeError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        errors.append(f"cannot validate runtime config: {exc}")
 
     try:
         vendor_manifest = json.loads(

@@ -45,7 +45,7 @@ def main() -> int:
         "创作者资料：尚未建立",
         "数字人音频：首次使用时准备",
         "数字人形象：首次使用时准备",
-        "剪辑包装：可直接使用",
+        "剪辑包装：使用时自动准备",
     ):
         if phrase not in rendered.stdout:
             raise AssertionError(f"missing customer-facing phrase: {phrase}")
@@ -92,10 +92,10 @@ def main() -> int:
                 encoding="utf-8"
             )
         )
-        if asset_center["profiles"]["packaging"]["status"] != "ready":
-            raise AssertionError("packaging profile must be ready by default")
-        if onboarding["modules"]["packaging"]["status"] != "ready":
-            raise AssertionError("packaging onboarding must be ready by default")
+        if asset_center["profiles"]["packaging"]["status"] != "pending":
+            raise AssertionError("packaging runtime must be prepared on first use")
+        if onboarding["modules"]["packaging"]["status"] != "pending":
+            raise AssertionError("packaging onboarding must be prepared on first use")
 
     print("CUSTOMER_ASSET_STATUS_TEST_OK")
     return 0

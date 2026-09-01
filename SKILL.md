@@ -1,8 +1,8 @@
 ---
 name: digital-human-complete-workflow
-description: Coordinate or partially run an authorized digital-human workflow across source-video rewrite, voice generation, mouth-only avatar video, and one fixed portrait information-layout packaging stage. Use for 完整数字人流程、给视频链接二创后做数字人、直接用文案做数字人、确认音频后做数字人画面、直接把现成数字人口播视频做包装, or resuming from a verified handoff. This skill routes and validates stages; it does not replace the configured production skills.
+description: Run or partially run an authorized four-stage digital-human workflow with bundled public rewrite, Chatterbox voice, MuseTalk mouth-only avatar, and fixed portrait packaging Skills. Use for 完整数字人流程、给视频链接二创后做数字人、直接用文案做数字人、确认音频后做数字人画面、直接把现成数字人口播视频做包装, or resuming from a verified handoff.
 metadata:
-  version: "0.9.7-draft"
+  version: "0.9.8"
 ---
 
 # 数字人完整流程 Skill
@@ -19,12 +19,12 @@ metadata:
 
 安装动作本身不得静默执行代码或采集个人资料。第一次调用本 Skill 时先完整读取 [下载、安装与可运行验收](references/installation-and-runtime.md)：
 
-1. 静默运行 `python scripts/verify_distribution.py <Skill目录>`；未出现 `DISTRIBUTION_OK` 时停止并准确报告文件损坏或缺失。随后静默运行 `python scripts/install_bundled_stage_skills.py`，把随包提供的通用数字人画面 Skill 安装到同一 Codex Skills 目录。校验和内置阶段安装成功时不得把版本号、发行校验或内部路径写进客户欢迎语。
+1. 静默运行 `python scripts/verify_distribution.py <Skill目录>`；未出现 `DISTRIBUTION_OK` 时停止并准确报告文件损坏或缺失。随后静默运行 `python scripts/install_bundled_stage_skills.py`，把随包提供的二创、数字人音频、数字人画面和剪辑包装四个阶段 Skill 安装到同一 Codex Skills 目录。校验和内置阶段安装成功时不得把版本号、发行校验或内部路径写进客户欢迎语。
 2. 在用户选择的工作区检查 `profiles/onboarding-status.json`：
 
 - 不存在：完整读取并执行 [首次启用与本地建档](references/first-run-onboarding.md)。可用 `python scripts/init_user_workspace.py <工作区> --modules all --creator-profile quick` 创建安全骨架，再通过对话完成资料。
 - 已存在：读取 [数字人资产中心与四模块串联](references/asset-center-and-module-chaining.md)。内部可以继续使用 `ready / pending / needs_recalibration / needs_review / not_selected / blocked`，但这些英文枚举、JSON 字段名和代码样式标签绝不直接显示给客户。确有必要显示准备情况时，必须运行 `python scripts/render_customer_asset_status.py <asset-center.json>` 并使用其中文输出，只补当前入口真正缺少或需要重新校准的资料。
-- 已存在旧版 `profiles/workflow-profile.json` 时，静默运行 `python scripts/migrate_stage_bindings.py <workflow-profile.json>`；只把旧的精确示例画面绑定迁移为 `digital-human-avatar-musetalk`，绝不覆盖用户自定义的真实画面 Skill。
+- 已存在旧版 `profiles/workflow-profile.json` 时，静默运行 `python scripts/migrate_stage_bindings.py <workflow-profile.json>`；只把旧版本中精确匹配的四阶段示例绑定迁移为随包公共阶段，绝不覆盖用户自定义的真实阶段 Skill。
 - 首次只选择基础信息简洁版或专业版；声音、形象和包装资料在实际进入对应模块时再建档。未建立声音或形象资料不得阻塞单独二创或剪辑包装入口，但进入相关数字人阶段前必须完成该模块建档。
 - 初始化工作区时同时建立二创、数字人音频、数字人形象、剪辑包装四个独立反馈文件；完整读取 [用户反馈沉淀与品牌资料](references/feedback-and-brand-assets.md)。
 
@@ -48,7 +48,7 @@ metadata:
 
 首次启用只做一次完整告知，形成长期本地资料库；每条新视频只收来源、文案、用途、动态事实和本条素材。所有真人声音、肖像与授权仍按阶段最小化提交，不在安装时自动上传。
 
-当前公开包已经随附并自动安装 `digital-human-avatar-musetalk` 通用画面阶段 Skill，且直接包含固定版本、带许可证与完整性校验的 MuseTalk 1.5 公开推理源码，因此默认 Profile 不再使用数字人画面的示例绑定，也不得让用户另找引擎。数 GB 公开模型、Python/CUDA 环境和用户本人授权素材由首次运行准备器在使用者本机获得；首次真正使用数字人画面前必须由该阶段的 `check_runtime.py` 验证。缺运行环境时，在进入数字人制作前说明具体缺口，经用户同意后由 `setup_runtime.py` 自动复制随包引擎、建立专用 Python、安装锁定依赖、下载固定 revision 的公开模型并记录哈希。`distribution-manifest.json` 仍标记为 `end_to_end_runtime_included=false`，因为通用声音与包装执行器及完整四阶段公开演示尚未全部交付；不得把画面阶段可运行冒充四阶段端到端已经完整。此信息不进入固定首次欢迎语，但用户真正发起完整流程或数字人制作时必须在开始耗时制作前完成预检，不能等音频确认后才暴露画面依赖。
+当前公开包已经随附并自动安装四个通用阶段 Skill：`digital-human-rewrite-generic`、`digital-human-voice-chatterbox`、`digital-human-avatar-musetalk` 和 `digital-human-packaging-fixed`。默认 Profile 不含示例绑定，不得再让用户自己寻找“真实可行的阶段 Skill”。代码、安装器、运行检查和固定交接合同均在包内；数 GB 公开声音/画面模型、Python/CUDA 环境、FFmpeg 和用户本人授权素材在首次进入相关阶段时于使用者本机准备。阶段开始前必须运行真实 `check_runtime.py`；未就绪时说明具体缺口和预计下载量，经用户同意后运行相应 `setup_runtime.py`。不得把“Skill 已安装”误说成“模型已经下载”，也不得等音频确认后才暴露画面环境缺口。
 
 ## 开工前
 
@@ -85,7 +85,7 @@ metadata:
 
 ## 阶段执行规则
 
-进入每个阶段前，主执行者必须重新完整读取 Profile 指定阶段 Skill 的 `SKILL.md`，再读取其中标记为必读、开工前读取或与选定版本直接相关的引用。`stage_skills.*.bundled_path` 存在时，先相对本 Skill 根目录解析并读取该内置阶段；否则从 Codex Skills 目录按名称发现。不得凭本 Skill 的摘要代替阶段 Skill。
+进入每个阶段前，主执行者必须重新完整读取已安装阶段 Skill 的 `SKILL.md`，再读取其中标记为必读、开工前读取或与选定版本直接相关的引用。`stage_skills.*.bundled_path` 指向的是安装源模板 `STAGE.md`，只供安装器使用，不能作为第二个可发现 Skill；正常执行始终从 Codex Skills 目录按名称找到已安装副本。不得凭本 Skill 的摘要代替阶段 Skill。
 
 ### 1. 二创
 

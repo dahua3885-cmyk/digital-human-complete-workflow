@@ -79,47 +79,38 @@ def main() -> int:
 
     os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
     records: list[dict[str, object]] = []
-    for item in manifest["models"]:
-        if "url" in item:
-            target = repo / item["target_path"]
-            download_direct(item["url"], target, item["sha256"])
-            records.append(
-                {
-                    "source": item["url"],
-                    "revision": None,
-                    "path": target.relative_to(repo).as_posix(),
-                    "bytes": target.stat().st_size,
-                    "sha256": sha256(target),
-                }
-            )
-            continue
-        repo_id = item["repo_id"]
-        revision = item["revision"]
-        patterns = list(item["allow_patterns"])
-        target = repo / item["target_dir"]
-        target.mkdir(parents=True, exist_ok=True)
-        snapshot_download(
-            repo_id=repo_id,
-            revision=revision,
-            allow_patterns=patterns,
-            local_dir=target,
-        )
-        downloaded: list[Path] = []
-        for relative in patterns:
-            path = target / relative
-            if not path.is_file():
-                raise FileNotFoundError(f"公开模型下载后仍缺少：{repo_id}/{relative}")
-            downloaded.append(path)
-        for path in downloaded:
-            records.append(
-                {
-                    "source": repo_id,
-                    "revision": revision,
-                    "path": path.relative_to(repo).as_posix(),
-                    "bytes": path.stat().st_size,
-                    "sha256": sha256(path),
-                }
-            )
+    try:
+        for item in manifest["models"]:
+            if "url" in item:
+                target = repo / item["target_path"]
+                download_direct(item["url"], target, item["sha256"])
+                records.append(
+                    {
+                        "source": item["url"],
+                        "revision": None,
+                        "path": target.relative_to(repo).as_posix(),
+                        "bytes": target.stat().st_size,
+                        "sha256": sha256(target),
+                    }
+                )
+                continue
+            repo_id = item["repo_id"]
+            revision = item["revision"]
+            patterns = list(item["allow_patterns"])
+            target = repo / item["target_dir"]
+            target.mkdir(parents=True, exist_ok=True)
+            snapshot_download(repo_id=repo_id, revision=revision, allow_patterns=patterns, local_dir=target)
+            downloaded: list[Path] = []
+            for relative in patterns:
+                path = target / relative
+                if not path.is_file():
+                    raise FileNotFoundError(f"公开模型下载后仍缺少：{repo_id}/{relative}")
+                downloaded.append(path)
+            for path in downloaded:
+                records.append({"source": repo_id, "revision": revision, "path": path.relative_to(repo).as_posix(), "bytes": path.stat().st_size, "sha256": sha256(path)})
+    except Exception as exc:
+        print(f"公开模型下载或校验没有完成：{exc}。已下载的分片会保留，下次可以继续。", file=sys.stderr)
+        return 2
 
     output = repo / "models-manifest.local.json"
     output.write_text(
